@@ -8,8 +8,8 @@ import (
 )
 
 type CreateUserDTO struct {
-	Name  string `json:"name"`
-	Email string `json:"email"`
+	Name  *string `validate:"required" json:"name"`
+	Email *string `validate:"required,email" json:"email"`
 }
 
 func CreateUser(c *fiber.Ctx) error {
@@ -21,10 +21,22 @@ func CreateUser(c *fiber.Ctx) error {
 		})
 	}
 
-	database.DB.Create(&models.User{
-		Name:  dto.Name,
-		Email: dto.Email,
+	if dto.Name == nil || dto.Email == nil {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+			"error": "Name and Email are required",
+		})
+	}
+
+	result := database.DB.Create(&models.User{
+		Name:  *dto.Name,
+		Email: *dto.Email,
 	})
+
+	if result.Error != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+			"error": result.Error.Error(),
+		})
+	}
 
 	return c.Status(fiber.StatusCreated).JSON(fiber.Map{
 		"message": "User created successfully",

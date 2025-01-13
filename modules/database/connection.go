@@ -28,9 +28,7 @@ func Connect() error {
 		panic("Failed to connect to database!")
 	}
 
-	DB.AutoMigrate(&models.User{})
-
-	DB.Create(&models.User{Name: "John Doe", Email: "john@doe.com"})
+	DB.AutoMigrate(&models.User{}, &models.Product{})
 
 	return nil
 }
