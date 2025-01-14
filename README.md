@@ -1,5 +1,11 @@
 # Desafio Golang
 
+//warning
+> [!CAUTION]
+> Não acesse a branch de outras pessoas. Crie sua própria branch e faça o PR para a branch master.
+>
+> Roubar e coisa de trouxa. Não seja trouxa.
+
 ## Objetivo
 
 O objetivo deste desafio é avaliar a curva de aprendizado do nosso time em migrar de uma typescript de programação para Golang.
