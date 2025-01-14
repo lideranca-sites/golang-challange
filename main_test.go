@@ -2,14 +2,15 @@ package main
 
 import (
 	"bytes"
-	"crud/modules/database"
-	"crud/modules/database/models"
-	"crud/modules/user"
-	"crud/modules/user/features"
 	"database/sql"
 	"encoding/json"
 	"net/http"
 	"testing"
+
+	"example/apps/api/infra/setup"
+	"example/apps/api/modules/user/features"
+	"example/libs/database"
+	"example/libs/database/models"
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/stretchr/testify/assert"
@@ -32,8 +33,7 @@ type TestSuite struct {
 func (suite *TestSuite) SetupSuite() {
 	var err error
 
-	suite.app = fiber.New()
-	user.SetupRoutes(suite.app)
+	suite.app = setup.Setup()
 
 	suite.db, err = gorm.Open(sqlite.Open("file::memory:?cache=shared"), &gorm.Config{})
 	database.DB = suite.db
@@ -45,8 +45,8 @@ func (suite *TestSuite) SetupSuite() {
 	suite.db.AutoMigrate(&models.User{}, &models.Product{})
 
 	suite.user = &models.User{
-		ID: 1, 
-		Name: "John Doe", 
+		ID:    1,
+		Name:  "John Doe",
 		Email: "john@doe.com",
 	}
 
@@ -57,7 +57,7 @@ func (suite *TestSuite) SetupSuite() {
 }
 
 func (suite *TestSuite) TestShouldCreateUser() {
-	data := &features.CreateUserDTO{
+	data := &features.CreateUserBodyDTO{
 		Name:  &suite.user.Name,
 		Email: &suite.user.Email,
 	}
@@ -80,7 +80,7 @@ func (suite *TestSuite) TestShouldCreateUser() {
 }
 
 func (suite *TestSuite) TestShouldNotCreate() {
-	data := &features.CreateUserDTO{
+	data := &features.CreateUserBodyDTO{
 		Name: &suite.user.Name,
 	}
 
@@ -99,6 +99,15 @@ func (suite *TestSuite) TestShouldNotCreate() {
 	assert.NoError(suite.T(), err)
 
 	assert.Equal(suite.T(), http.StatusBadRequest, res.StatusCode)
+
+	var response map[string]interface{}
+
+	err = json.NewDecoder(res.Body).Decode(&response)
+
+	assert.NoError(suite.T(), err)
+
+	assert.Equal(suite.T(), "The Email field is required", response["message"])
+
 }
 
 func (suite *TestSuite) TearDownSuite() {

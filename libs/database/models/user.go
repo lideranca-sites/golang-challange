@@ -2,17 +2,17 @@ package models
 
 import (
 	"errors"
-
-	"gorm.io/gorm"
 )
 
 type User struct {
-	gorm.Model
-	ID        int       `json:"id"`
+	ID        int       `json:"id" gorm:"primaryKey"`
 	Name      string    `json:"name"`
 	Email     string    `json:"email"`
+	Password  string    `json:"-"`
 	CreatedAt string    `json:"created_at"`
 	Products  []Product `json:"products"`
+	UpdatedAt string    `json:"updated_at"`
+	DeletedAt *string   `json:"deleted_at,omitempty"`
 }
 
 func (u *User) AddProduct(product Product) error {

@@ -3,14 +3,13 @@ package main
 import (
 	"crud/modules/database"
 	"crud/modules/user"
+	"errors"
 
-	"github.com/go-playground/validator/v10"
 	"github.com/gofiber/fiber/v2"
 	"github.com/joho/godotenv"
 )
 
 func main() {
-
 	if err := godotenv.Load(".env"); err != nil {
 		panic(err)
 	}
@@ -19,9 +18,20 @@ func main() {
 		panic(err)
 	}
 
-	app := fiber.New()
+	app := fiber.New(fiber.Config{
+		ErrorHandler: func(c *fiber.Ctx, err error) error {
+			code := fiber.StatusInternalServerError
 
-	var validate = validator.New()
+			var e *fiber.Error
+			if errors.As(err, &e) {
+				code = e.Code
+			}
+
+			c.Set(fiber.HeaderContentType, fiber.MIMETextPlainCharsetUTF8)
+
+			return c.Status(code).SendString("something happened at the disco!")
+		},
+	})
 
 	user.SetupRoutes(app)
 

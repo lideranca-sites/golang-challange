@@ -1,7 +1,7 @@
 package database
 
 import (
-	"crud/modules/database/models"
+	"example/libs/database/models"
 	"fmt"
 	"os"
 
