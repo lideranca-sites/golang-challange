@@ -1,6 +1,5 @@
 # Desafio Golang
 
-//warning
 > [!CAUTION]
 > Não acesse a branch de outras pessoas. Crie sua própria branch e faça o PR para a branch master.
 >
