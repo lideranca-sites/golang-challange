@@ -20,7 +20,7 @@ import (
 	"gorm.io/gorm"
 )
 
-type AuthTestSuite struct {
+type TestSuiteAuth struct {
 	suite.Suite
 
 	app *fiber.App
@@ -31,7 +31,7 @@ type AuthTestSuite struct {
 	product    *models.Product
 }
 
-func (suite *AuthTestSuite) SetupSuite() {
+func (suite *TestSuiteAuth) SetupSuite() {
 	var err error
 
 	suite.app = server.Setup()
@@ -72,7 +72,7 @@ func (suite *AuthTestSuite) SetupSuite() {
 	assert.NoError(suite.T(), result.Error)
 }
 
-func (suite *AuthTestSuite) TestSignUp() {
+func (suite *TestSuiteAuth) TestSignUp() {
 	new_user := &models.User{
 		Name:     "Jane Doe",
 		Email:    "jane@doe.com",
@@ -114,7 +114,7 @@ func (suite *AuthTestSuite) TestSignUp() {
 
 }
 
-func (suite *AuthTestSuite) TestSignIn() {
+func (suite *TestSuiteAuth) TestSignIn() {
 	body := &features.SignInBodyDTO{
 		Email:    &suite.user.Email,
 		Password: &suite.user.Password,
@@ -148,7 +148,7 @@ func (suite *AuthTestSuite) TestSignIn() {
 	assert.NotEmpty(suite.T(), token)
 }
 
-func (suite *AuthTestSuite) TestMe() {
+func (suite *TestSuiteAuth) TestMe() {
 	var token string
 
 	body := &features.SignInBodyDTO{
@@ -215,11 +215,11 @@ func (suite *AuthTestSuite) TestMe() {
 	assert.Equal(suite.T(), suite.user.Email, user["email"])
 }
 
-func (suite *AuthTestSuite) TearDownSuite() {
+func (suite *TestSuiteAuth) TearDownSuite() {
 	suite.db.Migrator().DropTable(&models.User{}, &models.Product{})
 	suite.connection.Close()
 }
 
-func AuthTest(t *testing.T) {
-	suite.Run(t, new(AuthTestSuite))
+func TestAuth(t *testing.T) {
+	suite.Run(t, new(TestSuiteAuth))
 }
