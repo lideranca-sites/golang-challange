@@ -3,7 +3,7 @@
 > [!CAUTION]
 > Não acesse a branch de outras pessoas. Crie sua própria branch e faça o PR para a branch master.
 >
-> Roubar e coisa de trouxa. Não seja trouxa.
+> Roubar e coisa de [Object object].
 
 ## Objetivo
 
