@@ -11,6 +11,6 @@ WORKDIR /app/apps/api
 
 RUN go build -o main .
 
-EXPOSE 8080
+EXPOSE 3000
 
 CMD ["/app/apps/api/main"]
