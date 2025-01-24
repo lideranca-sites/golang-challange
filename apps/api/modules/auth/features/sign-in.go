@@ -1,11 +1,11 @@
 package features
 
 import (
-	"example/libs/database"
 	"example/libs/database/models"
 
 	"github.com/gofiber/fiber/v2"
 	"golang.org/x/crypto/bcrypt"
+	"gorm.io/gorm"
 )
 
 const SignInPath = "/sign-in"
@@ -16,11 +16,13 @@ type SignInBodyDTO struct {
 }
 
 func SignIn(c *fiber.Ctx) error {
+	db := c.Locals("db").(*gorm.DB)
+
 	body := c.Locals("body").(*SignInBodyDTO)
 
 	var user models.User
 
-	result := database.DB.Where("email = ?", *body.Email).First(&user)
+	result := db.Where("email = ?", *body.Email).First(&user)
 
 	if result.Error != nil {
 		return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{

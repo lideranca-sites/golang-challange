@@ -1,10 +1,10 @@
 package features
 
 import (
-	"example/libs/database"
 	"example/libs/database/models"
 
 	"github.com/gofiber/fiber/v2"
+	"gorm.io/gorm"
 )
 
 const UpdateProductPath = "/products/:id"
@@ -16,12 +16,14 @@ type UpdateProductBodyDTO struct {
 }
 
 func UpdateProduct(c *fiber.Ctx) error {
+	db := c.Locals("db").(*gorm.DB)
+
 	body := c.Locals("body").(*UpdateProductBodyDTO)
 	user_id := c.Locals("user_id").(int)
 
 	found := models.Product{}
 
-	result := database.DB.Where("id = ? AND user_id = ?", c.Params("id"), user_id).First(&found)
+	result := db.Where("id = ? AND user_id = ?", c.Params("id"), user_id).First(&found)
 
 	if result.Error != nil {
 		return c.Status(fiber.StatusNotFound).JSON(fiber.Map{
@@ -33,8 +35,7 @@ func UpdateProduct(c *fiber.Ctx) error {
 	found.Price = *body.Price
 	found.Quantity = *body.Quantity
 
-	result = database.DB.Save(&found)
-
+	result = db.Save(&found)
 
 	if result.Error != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{

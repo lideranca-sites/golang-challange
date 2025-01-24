@@ -1,26 +1,28 @@
 package features
 
 import (
-	"example/libs/database"
 	"example/libs/database/models"
 	"strconv"
 
 	"github.com/gofiber/fiber/v2"
+	"gorm.io/gorm"
 )
 
 const DeleteProductPath = "/products/:id"
 
 func DeleteProduct(c *fiber.Ctx) error {
+	db := c.Locals("db").(*gorm.DB)
+
 	user_id := c.Locals("user_id").(int)
-	
+
 	id, err := strconv.Atoi(c.Params("id"))
 	if err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
 			"message": "Invalid id",
 		})
 	}
-	
-	result := database.DB.Where("id = ? AND user_id = ?", id, user_id).Delete(&models.Product{})
+
+	result := db.Where("id = ? AND user_id = ?", id, user_id).Delete(&models.Product{})
 
 	if result.Error != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{

@@ -1,9 +1,9 @@
 package products
 
 import (
+	"example/apps/api/infra/validation"
 	"example/apps/api/modules/auth/middleware"
 	"example/apps/api/modules/products/features"
-	"example/apps/api/validation"
 
 	"github.com/gofiber/fiber/v2"
 )

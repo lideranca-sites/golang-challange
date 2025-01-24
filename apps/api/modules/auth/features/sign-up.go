@@ -1,11 +1,11 @@
 package features
 
 import (
-	"example/libs/database"
 	"example/libs/database/models"
 
 	"github.com/gofiber/fiber/v2"
 	"golang.org/x/crypto/bcrypt"
+	"gorm.io/gorm"
 )
 
 const SignUpPath = "/sign-up"
@@ -17,6 +17,8 @@ type SignUpBodyDTO struct {
 }
 
 func SignUp(c *fiber.Ctx) error {
+	db := c.Locals("db").(*gorm.DB)
+
 	body := c.Locals("body").(*SignUpBodyDTO)
 
 	hash, err := bcrypt.GenerateFromPassword([]byte(*body.Password), bcrypt.DefaultCost)
@@ -27,7 +29,7 @@ func SignUp(c *fiber.Ctx) error {
 		Password: string(hash),
 	}
 
-	result := database.DB.Create(&user)
+	result := db.Create(&user)
 
 	if result.Error != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{

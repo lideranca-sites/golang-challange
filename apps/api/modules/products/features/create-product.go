@@ -1,10 +1,10 @@
 package features
 
 import (
-	"example/libs/database"
 	"example/libs/database/models"
 
 	"github.com/gofiber/fiber/v2"
+	"gorm.io/gorm"
 )
 
 const CreateProductPath = "/products"
@@ -16,6 +16,8 @@ type CreateProductBodyDTO struct {
 }
 
 func CreateProduct(c *fiber.Ctx) error {
+	db := c.Locals("db").(*gorm.DB)
+
 	body := c.Locals("body").(*CreateProductBodyDTO)
 	user_id := c.Locals("user_id").(int)
 
@@ -26,7 +28,7 @@ func CreateProduct(c *fiber.Ctx) error {
 		UserID:   user_id,
 	}
 
-	result := database.DB.Create(&product)
+	result := db.Create(&product)
 
 	if result.Error != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{

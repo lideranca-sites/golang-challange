@@ -2,19 +2,25 @@ package main
 
 import (
 	"bytes"
+	"context"
 	"database/sql"
 	"encoding/json"
+	"fmt"
+	"log"
 	"net/http"
+	"os"
 	"testing"
 
 	"example/apps/api/infra/server"
 	"example/apps/api/modules/auth/features"
-	"example/libs/database"
 	"example/libs/database/models"
 
+	"github.com/aws/aws-sdk-go-v2/service/sqs"
 	"github.com/gofiber/fiber/v2"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/suite"
+	"github.com/testcontainers/testcontainers-go"
+	"github.com/testcontainers/testcontainers-go/modules/localstack"
 	"golang.org/x/crypto/bcrypt"
 	"gorm.io/driver/sqlite"
 	"gorm.io/gorm"
@@ -25,7 +31,9 @@ type TestSuiteProduct struct {
 
 	app *fiber.App
 
+	container  *localstack.LocalStackContainer
 	db         *gorm.DB
+	sqs        *sqs.Client
 	connection *sql.DB
 	user       *models.User
 	product    *models.Product
@@ -35,10 +43,54 @@ type TestSuiteProduct struct {
 func (suite *TestSuiteProduct) SetupTest() {
 	var err error
 
-	suite.app = server.Setup()
+	ctx := context.Background()
 
+	localstackContainer, err := localstack.Run(ctx, "localstack/localstack")
+	defer func() {
+		if err := testcontainers.TerminateContainer(localstackContainer); err != nil {
+			log.Printf("failed to terminate container: %s", err)
+		}
+	}()
+
+	assert.NoError(suite.T(), err)
+
+	_, _, err = suite.container.Exec(context.Background(), []string{"awslocal", "sqs", "create-queue", "--queue-name", "product-queue"})
+	assert.NoError(suite.T(), err)
+
+	os.Setenv("AWS_ENDPOINT", "http://localhost:4566")
+	os.Setenv("AWS_REGION", "us-east-1")
+
+	suite.sqs = sqs.New(sqs.Options{})
 	suite.db, err = gorm.Open(sqlite.Open("file::memory:"), &gorm.Config{})
-	database.DB = suite.db
+
+	queue_url := "http://localhost:4566/000000000000/product-queue"
+
+	//send message to product-queue
+	_, err = suite.sqs.SendMessage(context.Background(), &sqs.SendMessageInput{
+		MessageBody: &suite.token,
+		QueueUrl:    &queue_url,
+	})
+
+	//receive message from product-queue
+	out, err := suite.sqs.ReceiveMessage(context.Background(), &sqs.ReceiveMessageInput{
+		QueueUrl: &queue_url,
+		MessageAttributeNames: []string{
+			"message",
+		},
+		MaxNumberOfMessages: 1,
+		VisibilityTimeout:   20,
+		WaitTimeSeconds:     0,
+	})
+
+	data := out.Messages[0].Body
+	parsed, err := json.Marshal(data)
+
+	fmt.Println(string(parsed))
+
+	assert.NoError(suite.T(), err)
+
+	suite.app = server.Setup(suite.db, suite.sqs)
+
 	assert.NoError(suite.T(), err)
 
 	suite.connection, err = suite.db.DB()
@@ -236,7 +288,7 @@ func (suite *TestSuiteProduct) TestUpdateProduct() {
 	assert.Contains(suite.T(), response, "product")
 
 	assert.Equal(suite.T(), "Product updated successfully", response["message"])
-	
+
 	assert.Contains(suite.T(), response["product"], "id")
 	assert.Contains(suite.T(), response["product"], "name")
 	assert.Contains(suite.T(), response["product"], "price")
