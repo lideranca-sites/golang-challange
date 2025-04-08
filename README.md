@@ -15,6 +15,7 @@ O desafio consiste em criar uma API REST que seja capaz de realizar as operaçõ
 
 ### Requisitos
 
+<!-- Feito -->
 - O recurso `Product` deve possuir os seguintes campos:
   - `id` (int)
   - `name` (string)
@@ -35,11 +36,11 @@ Todas as rotas exceto de consulta (`GET`) devem ser protegidas por autenticaçã
 
 ### Requisitos técnicos
 
-- Criar um modulo products dentro da pasta `/apps/api/modules` para organizar o código.
-- Adicionar campos ao modelo `Product`.
-- Criar uma feature por arquivo.
-- Criar um arquivo de rotas para o módulo `Product`.
-- Adicionar as rotas do módulo `Product` ao arquivo de rotas principal.
+<!-- - Criar um modulo products dentro da pasta `/apps/api/modules` para organizar o código. -->
+<!-- - Adicionar campos ao modelo `Product`. -->
+<!-- - Criar uma feature por arquivo. -->
+<!-- - Criar um arquivo de rotas para o módulo `Product`. -->
+<!-- - Adicionar as rotas do módulo `Product` ao arquivo de rotas principal. -->
 
 ### Como começar
 

@@ -56,7 +56,7 @@ func (suite *TestSuiteProduct) SetupTest() {
 	suite.product = &models.Product{
 		ID:       1,
 		Name:     "Product 1",
-		Price:    1000,
+		Price:    1000.0,
 		Quantity: 10,
 		UserID:   suite.user.ID,
 	}
@@ -86,8 +86,9 @@ func (suite *TestSuiteProduct) SetupTest() {
 func (suite *TestSuiteProduct) TestCreateProduct() {
 	new_product := &models.Product{
 		Name:     "Product 2",
-		Price:    1000,
+		Price:    1000.0,
 		Quantity: 10,
+		UserID:   suite.user.ID,
 	}
 
 	body, err := json.Marshal(new_product)
@@ -204,7 +205,7 @@ func (suite *TestSuiteProduct) TestGetProducts() {
 func (suite *TestSuiteProduct) TestUpdateProduct() {
 	new_product := &models.Product{
 		Name:     suite.product.Name,
-		Price:    2000,
+		Price:    2000.0,
 		Quantity: 20,
 	}
 
@@ -236,7 +237,7 @@ func (suite *TestSuiteProduct) TestUpdateProduct() {
 	assert.Contains(suite.T(), response, "product")
 
 	assert.Equal(suite.T(), "Product updated successfully", response["message"])
-	
+
 	assert.Contains(suite.T(), response["product"], "id")
 	assert.Contains(suite.T(), response["product"], "name")
 	assert.Contains(suite.T(), response["product"], "price")
