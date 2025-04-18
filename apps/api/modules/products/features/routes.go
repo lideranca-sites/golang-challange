@@ -2,7 +2,7 @@ package features
 
 import (
 	"example/apps/api/modules/auth/middleware"
-	validation "example/apps/api/modules/auth/products/middleware"
+	validation "example/apps/api/modules/products/middleware"
 
 	"github.com/gofiber/fiber/v2"
 )
