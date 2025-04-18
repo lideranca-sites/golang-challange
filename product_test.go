@@ -88,7 +88,6 @@ func (suite *TestSuiteProduct) TestCreateProduct() {
 		Name:     "Product 2",
 		Price:    1000.0,
 		Quantity: 10,
-		UserID:   suite.user.ID,
 	}
 
 	body, err := json.Marshal(new_product)
