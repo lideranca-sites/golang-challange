@@ -1,8 +1,8 @@
 package server
 
 import (
-	"example/apps/api/modules/auth"
-	"example/apps/api/modules/auth/products/features"
+	auth "example/apps/api/modules"
+	"example/apps/api/modules/products/features"
 
 	"github.com/gofiber/fiber/v2"
 )
