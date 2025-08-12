@@ -393,6 +393,33 @@ func (suite *TestSuiteProduct) TestUpdateProduct_NegativePrice() {
 	assert.Equal(suite.T(), fiber.StatusBadRequest, resp.StatusCode)
 }
 
+func (suite *TestSuiteProduct) TestUpdateProduct_NegativeQuantity() {
+	product := &models.Product{
+		Name:     suite.product.Name,
+		Price:    2000,
+		Quantity: -20,
+	}
+	body, err := json.Marshal(product)
+	assert.NoError(suite.T(), err)
+
+	req, err := http.NewRequest(http.MethodPut, "/api/v1/products/1", bytes.NewReader(body))
+	assert.NoError(suite.T(), err)
+
+	req.Header.Set("Authorization", "Bearer "+suite.token)
+	req.Header.Set("Content-Type", "application/json")
+
+	resp, err := suite.app.Test(req)
+	assert.NoError(suite.T(), err)
+
+	var response map[string]interface{}
+	err = json.NewDecoder(resp.Body).Decode(&response)
+	assert.NoError(suite.T(), err)
+
+	assert.Contains(suite.T(), response, "error")
+	assert.Equal(suite.T(), "Invalid product quantity", response["error"])
+	assert.Equal(suite.T(), fiber.StatusBadRequest, resp.StatusCode)
+}
+
 func (suite *TestSuiteProduct) TestDeleteProduct() {
 	req, err := http.NewRequest(http.MethodDelete, "/api/v1/products/1", nil)
 
