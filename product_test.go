@@ -265,6 +265,26 @@ func (suite *TestSuiteProduct) TestUpdateProduct() {
 	assert.Equal(suite.T(), new_product.Quantity, int(response["product"].(map[string]interface{})["quantity"].(float64)))
 }
 
+func (suite *TestSuiteProduct) TestUpdateProduct_RequiresAtLeastOneField() {
+	body, err := json.Marshal(map[string]interface{}{})
+	req, err := http.NewRequest(http.MethodPut, "/api/v1/products/1", bytes.NewReader(body))
+	assert.NoError(suite.T(), err)
+
+	req.Header.Set("Authorization", "Bearer "+suite.token)
+	req.Header.Set("Content-Type", "application/json")
+
+	resp, err := suite.app.Test(req)
+	assert.NoError(suite.T(), err)
+
+	var response map[string]interface{}
+	err = json.NewDecoder(resp.Body).Decode(&response)
+	assert.NoError(suite.T(), err)
+
+	assert.Contains(suite.T(), response, "message")
+	assert.Equal(suite.T(), "At least one field must be provided", response["message"])
+	assert.Equal(suite.T(), fiber.StatusBadRequest, resp.StatusCode)
+}
+
 func (suite *TestSuiteProduct) TestDeleteProduct() {
 	req, err := http.NewRequest(http.MethodDelete, "/api/v1/products/1", nil)
 
