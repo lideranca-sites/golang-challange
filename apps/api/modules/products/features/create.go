@@ -9,9 +9,9 @@ import (
 )
 
 type CreateProductBodyDTO struct {
-	Name     string `validate:"required" json:"name"`
-	Price    int    `validate:"required" json:"price"`
-	Quantity int    `validate:"required" json:"quantity"`
+	Name     string  `validate:"required" json:"name"`
+	Price    float64 `validate:"required" json:"price"`
+	Quantity int     `validate:"required" json:"quantity"`
 }
 
 func CreateProduct(c *fiber.Ctx) error {

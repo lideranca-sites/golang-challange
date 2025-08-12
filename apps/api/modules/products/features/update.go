@@ -9,9 +9,9 @@ import (
 )
 
 type UpdateProductBodyDTO struct {
-	Name     *string `json:"name" validate:"required_without_all=Price Quantity"`
-	Price    *int    `json:"price" validate:"required_without_all=Name Quantity"`
-	Quantity *int    `json:"quantity" validate:"required_without_all=Name Price"`
+	Name     *string  `json:"name" validate:"required_without_all=Price Quantity"`
+	Price    *float64 `json:"price" validate:"required_without_all=Name Quantity"`
+	Quantity *int     `json:"quantity" validate:"required_without_all=Name Price"`
 }
 
 func UpdateProduct(c *fiber.Ctx) error {
