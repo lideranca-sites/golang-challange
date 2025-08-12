@@ -166,7 +166,7 @@ func (suite *TestSuiteProduct) TestGetProductsByUser() {
 	assert.Equal(suite.T(), suite.product.UserID, int(products[0].(map[string]interface{})["user_id"].(float64)))
 }
 
-func (suite *TestSuiteProduct) TestGetProductsInvalidUserID() {
+func (suite *TestSuiteProduct) TestGetProducts_InvalidUserID() {
 	req, err := http.NewRequest(http.MethodGet, "/api/v1/products?user_id=abc", nil)
 	assert.NoError(suite.T(), err)
 
