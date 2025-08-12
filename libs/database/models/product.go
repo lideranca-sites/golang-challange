@@ -19,5 +19,5 @@ type Product struct {
 	UserID    int        `json:"user_id"`
 	CreatedAt time.Time  `json:"created_at"`
 	UpdatedAt time.Time  `json:"updated_at"`
-	DeletedAt *time.Time `gorm:"index" json:"deleted_at"`
+	DeletedAt *time.Time `gorm:"index"`
 }

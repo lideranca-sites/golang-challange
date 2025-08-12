@@ -45,6 +45,14 @@ func CreateProduct(c *fiber.Ctx) error {
 
 	return c.Status(fiber.StatusCreated).JSON(fiber.Map{
 		"message": "Product created successfully",
-		"product": product,
+		"product": fiber.Map{
+			"id":         product.ID,
+			"name":       product.Name,
+			"price":      product.Price,
+			"quantity":   product.Quantity,
+			"user_id":    product.UserID,
+			"created_at": product.CreatedAt,
+			"updated_at": product.UpdatedAt,
+		},
 	})
 }
