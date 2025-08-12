@@ -17,6 +17,12 @@ func UpdateProduct(c *fiber.Ctx) error {
 	body := c.Locals("body").(*UpdateProductBodyDTO)
 	productId := c.Params("id")
 
+	if productId == "" {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+			"error": "Product ID is required",
+		})
+	}
+
 	var product models.Product
 	if err := database.DB.First(&product, productId).Error; err != nil {
 		return c.Status(fiber.StatusNotFound).JSON(fiber.Map{
