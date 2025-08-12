@@ -20,6 +20,8 @@ func MapErrorMessages(error ValidationError) string {
 	switch error.Tag {
 	case "required":
 		message = "The " + error.Field + " field is required"
+	case "required_without_all":
+		message = "At least one field must be provided"
 	case "email":
 		message = "The " + error.Field + " field must be a valid email"
 	default:

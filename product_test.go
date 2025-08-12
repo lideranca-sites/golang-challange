@@ -126,9 +126,63 @@ func (suite *TestSuiteProduct) TestCreateProduct() {
 	assert.Contains(suite.T(), response["product"], "user_id")
 
 	assert.Equal(suite.T(), new_product.Name, response["product"].(map[string]interface{})["name"])
-	assert.Equal(suite.T(), new_product.Price, int(response["product"].(map[string]interface{})["price"].(float64)))
+	assert.Equal(suite.T(), new_product.Price, response["product"].(map[string]interface{})["price"].(float64))
 	assert.Equal(suite.T(), new_product.Quantity, int(response["product"].(map[string]interface{})["quantity"].(float64)))
 	assert.Equal(suite.T(), suite.user.ID, int(response["product"].(map[string]interface{})["user_id"].(float64)))
+}
+
+func (suite *TestSuiteProduct) TestCreateProduct_NegativePrice() {
+	product := models.Product{
+		Name:     "Produto 1",
+		Price:    -1,
+		Quantity: 5,
+	}
+	body, err := json.Marshal(product)
+	assert.NoError(suite.T(), err)
+
+	req, err := http.NewRequest(http.MethodPost, "/api/v1/products", bytes.NewReader(body))
+	assert.NoError(suite.T(), err)
+
+	req.Header.Set("Authorization", "Bearer "+suite.token)
+	req.Header.Set("Content-Type", "application/json")
+
+	resp, err := suite.app.Test(req)
+	assert.NoError(suite.T(), err)
+
+	var response map[string]interface{}
+	err = json.NewDecoder(resp.Body).Decode(&response)
+	assert.NoError(suite.T(), err)
+
+	assert.Contains(suite.T(), response, "error")
+	assert.Equal(suite.T(), "Invalid product price", response["error"])
+	assert.Equal(suite.T(), fiber.StatusBadRequest, resp.StatusCode)
+}
+
+func (suite *TestSuiteProduct) TestCreateProduct_NegativeQuantity() {
+	product := models.Product{
+		Name:     "Produto 1",
+		Price:    100,
+		Quantity: -5,
+	}
+	body, err := json.Marshal(product)
+	assert.NoError(suite.T(), err)
+
+	req, err := http.NewRequest(http.MethodPost, "/api/v1/products", bytes.NewReader(body))
+	assert.NoError(suite.T(), err)
+
+	req.Header.Set("Authorization", "Bearer "+suite.token)
+	req.Header.Set("Content-Type", "application/json")
+
+	resp, err := suite.app.Test(req)
+	assert.NoError(suite.T(), err)
+
+	var response map[string]interface{}
+	err = json.NewDecoder(resp.Body).Decode(&response)
+	assert.NoError(suite.T(), err)
+
+	assert.Contains(suite.T(), response, "error")
+	assert.Equal(suite.T(), "Invalid product quantity", response["error"])
+	assert.Equal(suite.T(), fiber.StatusBadRequest, resp.StatusCode)
 }
 
 func (suite *TestSuiteProduct) TestGetProductsByUser() {
@@ -161,9 +215,26 @@ func (suite *TestSuiteProduct) TestGetProductsByUser() {
 
 	assert.Equal(suite.T(), suite.product.ID, int(products[0].(map[string]interface{})["id"].(float64)))
 	assert.Equal(suite.T(), suite.product.Name, products[0].(map[string]interface{})["name"])
-	assert.Equal(suite.T(), suite.product.Price, int(products[0].(map[string]interface{})["price"].(float64)))
+	assert.Equal(suite.T(), suite.product.Price, products[0].(map[string]interface{})["price"].(float64))
 	assert.Equal(suite.T(), suite.product.Quantity, int(products[0].(map[string]interface{})["quantity"].(float64)))
 	assert.Equal(suite.T(), suite.product.UserID, int(products[0].(map[string]interface{})["user_id"].(float64)))
+}
+
+func (suite *TestSuiteProduct) TestGetProducts_InvalidUserID() {
+	req, err := http.NewRequest(http.MethodGet, "/api/v1/products?user_id=abc", nil)
+	assert.NoError(suite.T(), err)
+
+	resp, err := suite.app.Test(req)
+	assert.NoError(suite.T(), err)
+
+	var response map[string]interface{}
+	err = json.NewDecoder(resp.Body).Decode(&response)
+	assert.NoError(suite.T(), err)
+
+	assert.Equal(suite.T(), "Invalid user ID", response["error"])
+	assert.Contains(suite.T(), response, "error")
+	assert.NoError(suite.T(), err)
+	assert.Equal(suite.T(), fiber.StatusBadRequest, resp.StatusCode)
 }
 
 func (suite *TestSuiteProduct) TestGetProducts() {
@@ -196,7 +267,7 @@ func (suite *TestSuiteProduct) TestGetProducts() {
 
 	assert.Equal(suite.T(), suite.product.ID, int(products[0].(map[string]interface{})["id"].(float64)))
 	assert.Equal(suite.T(), suite.product.Name, products[0].(map[string]interface{})["name"])
-	assert.Equal(suite.T(), suite.product.Price, int(products[0].(map[string]interface{})["price"].(float64)))
+	assert.Equal(suite.T(), suite.product.Price, products[0].(map[string]interface{})["price"].(float64))
 	assert.Equal(suite.T(), suite.product.Quantity, int(products[0].(map[string]interface{})["quantity"].(float64)))
 	assert.Equal(suite.T(), suite.product.UserID, int(products[0].(map[string]interface{})["user_id"].(float64)))
 }
@@ -236,7 +307,7 @@ func (suite *TestSuiteProduct) TestUpdateProduct() {
 	assert.Contains(suite.T(), response, "product")
 
 	assert.Equal(suite.T(), "Product updated successfully", response["message"])
-	
+
 	assert.Contains(suite.T(), response["product"], "id")
 	assert.Contains(suite.T(), response["product"], "name")
 	assert.Contains(suite.T(), response["product"], "price")
@@ -244,22 +315,134 @@ func (suite *TestSuiteProduct) TestUpdateProduct() {
 
 	assert.Equal(suite.T(), suite.product.ID, int(response["product"].(map[string]interface{})["id"].(float64)))
 	assert.Equal(suite.T(), new_product.Name, response["product"].(map[string]interface{})["name"])
-	assert.Equal(suite.T(), new_product.Price, int(response["product"].(map[string]interface{})["price"].(float64)))
+	assert.Equal(suite.T(), new_product.Price, response["product"].(map[string]interface{})["price"].(float64))
 	assert.Equal(suite.T(), new_product.Quantity, int(response["product"].(map[string]interface{})["quantity"].(float64)))
+}
+
+func (suite *TestSuiteProduct) TestUpdateProduct_RequiresAtLeastOneField() {
+	body, err := json.Marshal(map[string]interface{}{})
+	req, err := http.NewRequest(http.MethodPut, "/api/v1/products/1", bytes.NewReader(body))
+	assert.NoError(suite.T(), err)
+
+	req.Header.Set("Authorization", "Bearer "+suite.token)
+	req.Header.Set("Content-Type", "application/json")
+
+	resp, err := suite.app.Test(req)
+	assert.NoError(suite.T(), err)
+
+	var response map[string]interface{}
+	err = json.NewDecoder(resp.Body).Decode(&response)
+	assert.NoError(suite.T(), err)
+
+	assert.Contains(suite.T(), response, "message")
+	assert.Equal(suite.T(), "At least one field must be provided", response["message"])
+	assert.Equal(suite.T(), fiber.StatusBadRequest, resp.StatusCode)
+}
+
+func (suite *TestSuiteProduct) TestUpdateProduct_InvalidProductID() {
+	product := &models.Product{
+		Name:     suite.product.Name,
+		Price:    2000,
+		Quantity: 20,
+	}
+	body, err := json.Marshal(product)
+	assert.NoError(suite.T(), err)
+
+	req, err := http.NewRequest(http.MethodPut, "/api/v1/products/abc", bytes.NewReader(body))
+	assert.NoError(suite.T(), err)
+
+	req.Header.Set("Authorization", "Bearer "+suite.token)
+	req.Header.Set("Content-Type", "application/json")
+
+	resp, err := suite.app.Test(req)
+	assert.NoError(suite.T(), err)
+
+	var response map[string]interface{}
+	err = json.NewDecoder(resp.Body).Decode(&response)
+	assert.NoError(suite.T(), err)
+
+	assert.Contains(suite.T(), response, "error")
+	assert.Equal(suite.T(), "Invalid product ID", response["error"])
+	assert.Equal(suite.T(), fiber.StatusBadRequest, resp.StatusCode)
+}
+
+func (suite *TestSuiteProduct) TestUpdateProduct_NegativePrice() {
+	product := &models.Product{
+		Name:     suite.product.Name,
+		Price:    -2000,
+		Quantity: 20,
+	}
+	body, err := json.Marshal(product)
+	assert.NoError(suite.T(), err)
+
+	req, err := http.NewRequest(http.MethodPut, "/api/v1/products/1", bytes.NewReader(body))
+	assert.NoError(suite.T(), err)
+
+	req.Header.Set("Authorization", "Bearer "+suite.token)
+	req.Header.Set("Content-Type", "application/json")
+
+	resp, err := suite.app.Test(req)
+	assert.NoError(suite.T(), err)
+
+	var response map[string]interface{}
+	err = json.NewDecoder(resp.Body).Decode(&response)
+	assert.NoError(suite.T(), err)
+
+	assert.Contains(suite.T(), response, "error")
+	assert.Equal(suite.T(), "Invalid product price", response["error"])
+	assert.Equal(suite.T(), fiber.StatusBadRequest, resp.StatusCode)
+}
+
+func (suite *TestSuiteProduct) TestUpdateProduct_NegativeQuantity() {
+	product := &models.Product{
+		Name:     suite.product.Name,
+		Price:    2000,
+		Quantity: -20,
+	}
+	body, err := json.Marshal(product)
+	assert.NoError(suite.T(), err)
+
+	req, err := http.NewRequest(http.MethodPut, "/api/v1/products/1", bytes.NewReader(body))
+	assert.NoError(suite.T(), err)
+
+	req.Header.Set("Authorization", "Bearer "+suite.token)
+	req.Header.Set("Content-Type", "application/json")
+
+	resp, err := suite.app.Test(req)
+	assert.NoError(suite.T(), err)
+
+	var response map[string]interface{}
+	err = json.NewDecoder(resp.Body).Decode(&response)
+	assert.NoError(suite.T(), err)
+
+	assert.Contains(suite.T(), response, "error")
+	assert.Equal(suite.T(), "Invalid product quantity", response["error"])
+	assert.Equal(suite.T(), fiber.StatusBadRequest, resp.StatusCode)
 }
 
 func (suite *TestSuiteProduct) TestDeleteProduct() {
 	req, err := http.NewRequest(http.MethodDelete, "/api/v1/products/1", nil)
-
 	assert.NoError(suite.T(), err)
 
 	req.Header.Add("Authorization", "Bearer "+suite.token)
 
 	resp, err := suite.app.Test(req)
+	assert.NoError(suite.T(), err)
+	assert.Equal(suite.T(), fiber.StatusNoContent, resp.StatusCode)
 
+	getProduct, err := http.NewRequest(http.MethodGet, "/api/v1/products?user_id=1", nil)
 	assert.NoError(suite.T(), err)
 
-	assert.Equal(suite.T(), fiber.StatusNoContent, resp.StatusCode)
+	respGet, err := suite.app.Test(getProduct)
+	assert.NoError(suite.T(), err)
+	assert.Equal(suite.T(), fiber.StatusOK, respGet.StatusCode)
+
+	var response map[string]interface{}
+	err = json.NewDecoder(respGet.Body).Decode(&response)
+	assert.NoError(suite.T(), err)
+
+	products := response["products"].([]interface{})
+	assert.Empty(suite.T(), products)
 }
 
 func (suite *TestSuiteProduct) TearDownSuite() {
