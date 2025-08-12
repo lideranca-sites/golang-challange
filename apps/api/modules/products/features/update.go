@@ -3,6 +3,7 @@ package features
 import (
 	"example/libs/database"
 	"example/libs/database/models"
+	"strconv"
 
 	"github.com/gofiber/fiber/v2"
 )
@@ -20,6 +21,12 @@ func UpdateProduct(c *fiber.Ctx) error {
 	if productId == "" {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
 			"error": "Product ID is required",
+		})
+	}
+
+	if _, err := strconv.Atoi(productId); err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+			"error": "Invalid product ID",
 		})
 	}
 
