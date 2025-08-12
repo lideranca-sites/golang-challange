@@ -24,4 +24,5 @@ func SetupRoutes(router fiber.Router) {
 	router.Post(BASE_PATH, middleware.JWTProtected, validateCreateProductRequest, features.CreateProduct)
 	productIdPath := fmt.Sprintf("%s/:id", BASE_PATH)
 	router.Put(productIdPath, middleware.JWTProtected, validateUpdateProductRequest, features.UpdateProduct)
+	router.Delete(productIdPath, middleware.JWTProtected, features.DeleteProduct)
 }
