@@ -166,6 +166,23 @@ func (suite *TestSuiteProduct) TestGetProductsByUser() {
 	assert.Equal(suite.T(), suite.product.UserID, int(products[0].(map[string]interface{})["user_id"].(float64)))
 }
 
+func (suite *TestSuiteProduct) TestGetProductsInvalidUserID() {
+	req, err := http.NewRequest(http.MethodGet, "/api/v1/products?user_id=abc", nil)
+	assert.NoError(suite.T(), err)
+
+	resp, err := suite.app.Test(req)
+	assert.NoError(suite.T(), err)
+
+	var response map[string]interface{}
+	err = json.NewDecoder(resp.Body).Decode(&response)
+	assert.NoError(suite.T(), err)
+
+	assert.Equal(suite.T(), "Invalid user ID", response["error"])
+	assert.Contains(suite.T(), response, "error")
+	assert.NoError(suite.T(), err)
+	assert.Equal(suite.T(), fiber.StatusBadRequest, resp.StatusCode)
+}
+
 func (suite *TestSuiteProduct) TestGetProducts() {
 	req, err := http.NewRequest(http.MethodGet, "/api/v1/products", nil)
 
@@ -236,7 +253,7 @@ func (suite *TestSuiteProduct) TestUpdateProduct() {
 	assert.Contains(suite.T(), response, "product")
 
 	assert.Equal(suite.T(), "Product updated successfully", response["message"])
-	
+
 	assert.Contains(suite.T(), response["product"], "id")
 	assert.Contains(suite.T(), response["product"], "name")
 	assert.Contains(suite.T(), response["product"], "price")
