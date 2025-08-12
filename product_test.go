@@ -422,16 +422,27 @@ func (suite *TestSuiteProduct) TestUpdateProduct_NegativeQuantity() {
 
 func (suite *TestSuiteProduct) TestDeleteProduct() {
 	req, err := http.NewRequest(http.MethodDelete, "/api/v1/products/1", nil)
-
 	assert.NoError(suite.T(), err)
 
 	req.Header.Add("Authorization", "Bearer "+suite.token)
 
 	resp, err := suite.app.Test(req)
+	assert.NoError(suite.T(), err)
+	assert.Equal(suite.T(), fiber.StatusNoContent, resp.StatusCode)
 
+	getProduct, err := http.NewRequest(http.MethodGet, "/api/v1/products?user_id=1", nil)
 	assert.NoError(suite.T(), err)
 
-	assert.Equal(suite.T(), fiber.StatusNoContent, resp.StatusCode)
+	respGet, err := suite.app.Test(getProduct)
+	assert.NoError(suite.T(), err)
+	assert.Equal(suite.T(), fiber.StatusOK, respGet.StatusCode)
+
+	var response map[string]interface{}
+	err = json.NewDecoder(respGet.Body).Decode(&response)
+	assert.NoError(suite.T(), err)
+
+	products := response["products"].([]interface{})
+	assert.Empty(suite.T(), products)
 }
 
 func (suite *TestSuiteProduct) TearDownSuite() {
