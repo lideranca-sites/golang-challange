@@ -158,6 +158,33 @@ func (suite *TestSuiteProduct) TestCreateProduct_NegativePrice() {
 	assert.Equal(suite.T(), fiber.StatusBadRequest, resp.StatusCode)
 }
 
+func (suite *TestSuiteProduct) TestCreateProduct_NegativeQuantity() {
+	product := models.Product{
+		Name:     "Produto 1",
+		Price:    100,
+		Quantity: -5,
+	}
+	body, err := json.Marshal(product)
+	assert.NoError(suite.T(), err)
+
+	req, err := http.NewRequest(http.MethodPost, "/api/v1/products", bytes.NewReader(body))
+	assert.NoError(suite.T(), err)
+
+	req.Header.Set("Authorization", "Bearer "+suite.token)
+	req.Header.Set("Content-Type", "application/json")
+
+	resp, err := suite.app.Test(req)
+	assert.NoError(suite.T(), err)
+
+	var response map[string]interface{}
+	err = json.NewDecoder(resp.Body).Decode(&response)
+	assert.NoError(suite.T(), err)
+
+	assert.Contains(suite.T(), response, "error")
+	assert.Equal(suite.T(), "Invalid product quantity", response["error"])
+	assert.Equal(suite.T(), fiber.StatusBadRequest, resp.StatusCode)
+}
+
 func (suite *TestSuiteProduct) TestGetProductsByUser() {
 	req, err := http.NewRequest(http.MethodGet, "/api/v1/products?user_id=1", nil)
 

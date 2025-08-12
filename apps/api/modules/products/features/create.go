@@ -24,6 +24,12 @@ func CreateProduct(c *fiber.Ctx) error {
 		})
 	}
 
+	if body.Quantity < 0 {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+			"error": "Invalid product quantity",
+		})
+	}
+
 	product := models.Product{
 		Name:     body.Name,
 		Price:    body.Price,
