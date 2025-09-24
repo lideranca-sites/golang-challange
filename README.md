@@ -21,6 +21,7 @@ A implementação foi desenvolvida seguindo a abordagem de TDD (Test-Driven Deve
 * **Go**
 * **Fiber** (Framework Web)
 * **GORM** (ORM para banco de dados)
+* **SQLite** (SQLite)
 
 ## Como Rodar os Testes
 
@@ -29,3 +30,17 @@ Para verificar a funcionalidade do módulo de produtos, execute:
 ```bash
 go test product_test.go -v
 ```
+
+## Como Rodar a aplicação
+
+Para rodar a aplicação, execute:
+
+```bash
+go run apps/api/main.go
+```
+
+## Collection do Postman para teste das rotas e banco de dados
+
+Json da collection para testes:
+
+Arquivo: **Desafio Tech Go.postman_collection.json**
