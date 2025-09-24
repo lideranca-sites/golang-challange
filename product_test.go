@@ -54,7 +54,6 @@ func (suite *TestSuiteProduct) SetupTest() {
 	}
 
 	suite.product = &models.Product{
-		ID:       1,
 		Name:     "Product 1",
 		Price:    1000,
 		Quantity: 10,
@@ -119,16 +118,17 @@ func (suite *TestSuiteProduct) TestCreateProduct() {
 
 	assert.Equal(suite.T(), "Product created successfully", response["message"])
 
-	assert.Contains(suite.T(), response["product"], "id")
-	assert.Contains(suite.T(), response["product"], "name")
-	assert.Contains(suite.T(), response["product"], "price")
-	assert.Contains(suite.T(), response["product"], "quantity")
-	assert.Contains(suite.T(), response["product"], "user_id")
+	productData := response["product"].(map[string]interface{})
+	assert.Contains(suite.T(), productData, "ID")
+	assert.Contains(suite.T(), productData, "name")
+	assert.Contains(suite.T(), productData, "price")
+	assert.Contains(suite.T(), productData, "quantity")
+	assert.Contains(suite.T(), productData, "user_id")
 
-	assert.Equal(suite.T(), new_product.Name, response["product"].(map[string]interface{})["name"])
-	assert.Equal(suite.T(), new_product.Price, int(response["product"].(map[string]interface{})["price"].(float64)))
-	assert.Equal(suite.T(), new_product.Quantity, int(response["product"].(map[string]interface{})["quantity"].(float64)))
-	assert.Equal(suite.T(), suite.user.ID, int(response["product"].(map[string]interface{})["user_id"].(float64)))
+	assert.Equal(suite.T(), new_product.Name, productData["name"])
+	assert.Equal(suite.T(), new_product.Price, productData["price"])
+	assert.Equal(suite.T(), float64(new_product.Quantity), productData["quantity"])
+	assert.Equal(suite.T(), float64(suite.user.ID), productData["user_id"])
 }
 
 func (suite *TestSuiteProduct) TestGetProductsByUser() {
@@ -153,17 +153,18 @@ func (suite *TestSuiteProduct) TestGetProductsByUser() {
 	products := response["products"].([]interface{})
 	assert.NotEmpty(suite.T(), products)
 
-	assert.Contains(suite.T(), products[0], "id")
-	assert.Contains(suite.T(), products[0], "name")
-	assert.Contains(suite.T(), products[0], "price")
-	assert.Contains(suite.T(), products[0], "quantity")
-	assert.Contains(suite.T(), products[0], "user_id")
+	productData := products[0].(map[string]interface{})
+	assert.Contains(suite.T(), productData, "ID")
+	assert.Contains(suite.T(), productData, "name")
+	assert.Contains(suite.T(), productData, "price")
+	assert.Contains(suite.T(), productData, "quantity")
+	assert.Contains(suite.T(), productData, "user_id")
 
-	assert.Equal(suite.T(), suite.product.ID, int(products[0].(map[string]interface{})["id"].(float64)))
-	assert.Equal(suite.T(), suite.product.Name, products[0].(map[string]interface{})["name"])
-	assert.Equal(suite.T(), suite.product.Price, int(products[0].(map[string]interface{})["price"].(float64)))
-	assert.Equal(suite.T(), suite.product.Quantity, int(products[0].(map[string]interface{})["quantity"].(float64)))
-	assert.Equal(suite.T(), suite.product.UserID, int(products[0].(map[string]interface{})["user_id"].(float64)))
+	assert.Equal(suite.T(), float64(suite.product.ID), productData["ID"])
+	assert.Equal(suite.T(), suite.product.Name, productData["name"])
+	assert.Equal(suite.T(), suite.product.Price, productData["price"])
+	assert.Equal(suite.T(), float64(suite.product.Quantity), productData["quantity"])
+	assert.Equal(suite.T(), float64(suite.product.UserID), productData["user_id"])
 }
 
 func (suite *TestSuiteProduct) TestGetProducts() {
@@ -188,17 +189,18 @@ func (suite *TestSuiteProduct) TestGetProducts() {
 	products := response["products"].([]interface{})
 	assert.NotEmpty(suite.T(), products)
 
-	assert.Contains(suite.T(), products[0], "id")
-	assert.Contains(suite.T(), products[0], "name")
-	assert.Contains(suite.T(), products[0], "price")
-	assert.Contains(suite.T(), products[0], "quantity")
-	assert.Contains(suite.T(), products[0], "user_id")
+	productData := products[0].(map[string]interface{})
+	assert.Contains(suite.T(), productData, "ID")
+	assert.Contains(suite.T(), productData, "name")
+	assert.Contains(suite.T(), productData, "price")
+	assert.Contains(suite.T(), productData, "quantity")
+	assert.Contains(suite.T(), productData, "user_id")
 
-	assert.Equal(suite.T(), suite.product.ID, int(products[0].(map[string]interface{})["id"].(float64)))
-	assert.Equal(suite.T(), suite.product.Name, products[0].(map[string]interface{})["name"])
-	assert.Equal(suite.T(), suite.product.Price, int(products[0].(map[string]interface{})["price"].(float64)))
-	assert.Equal(suite.T(), suite.product.Quantity, int(products[0].(map[string]interface{})["quantity"].(float64)))
-	assert.Equal(suite.T(), suite.product.UserID, int(products[0].(map[string]interface{})["user_id"].(float64)))
+	assert.Equal(suite.T(), float64(suite.product.ID), productData["ID"])
+	assert.Equal(suite.T(), suite.product.Name, productData["name"])
+	assert.Equal(suite.T(), suite.product.Price, productData["price"])
+	assert.Equal(suite.T(), float64(suite.product.Quantity), productData["quantity"])
+	assert.Equal(suite.T(), float64(suite.product.UserID), productData["user_id"])
 }
 
 func (suite *TestSuiteProduct) TestUpdateProduct() {
@@ -236,16 +238,17 @@ func (suite *TestSuiteProduct) TestUpdateProduct() {
 	assert.Contains(suite.T(), response, "product")
 
 	assert.Equal(suite.T(), "Product updated successfully", response["message"])
-	
-	assert.Contains(suite.T(), response["product"], "id")
-	assert.Contains(suite.T(), response["product"], "name")
-	assert.Contains(suite.T(), response["product"], "price")
-	assert.Contains(suite.T(), response["product"], "quantity")
 
-	assert.Equal(suite.T(), suite.product.ID, int(response["product"].(map[string]interface{})["id"].(float64)))
-	assert.Equal(suite.T(), new_product.Name, response["product"].(map[string]interface{})["name"])
-	assert.Equal(suite.T(), new_product.Price, int(response["product"].(map[string]interface{})["price"].(float64)))
-	assert.Equal(suite.T(), new_product.Quantity, int(response["product"].(map[string]interface{})["quantity"].(float64)))
+	productData := response["product"].(map[string]interface{})
+	assert.Contains(suite.T(), productData, "ID")
+	assert.Contains(suite.T(), productData, "name")
+	assert.Contains(suite.T(), productData, "price")
+	assert.Contains(suite.T(), productData, "quantity")
+
+	assert.Equal(suite.T(), float64(suite.product.ID), productData["ID"])
+	assert.Equal(suite.T(), new_product.Name, productData["name"])
+	assert.Equal(suite.T(), new_product.Price, productData["price"])
+	assert.Equal(suite.T(), float64(new_product.Quantity), productData["quantity"])
 }
 
 func (suite *TestSuiteProduct) TestDeleteProduct() {

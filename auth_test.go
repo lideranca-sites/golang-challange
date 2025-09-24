@@ -53,7 +53,6 @@ func (suite *TestSuiteAuth) SetupSuite() {
 	}
 
 	suite.product = &models.Product{
-		ID:     1,
 		Name:   "Product 1",
 		UserID: suite.user.ID,
 	}
