@@ -1,52 +1,99 @@
-# Desafio Golang
+# Desafio Golang: API REST de Produtos
 
-> [!CAUTION]
-> Não acesse a branch de outras pessoas. Crie sua própria branch e faça o PR para a branch master.
->
-> Roubar e coisa de [Object object].
+## Visão Geral
 
-## Objetivo
+Este projeto é uma API RESTful completa para gerenciamento de produtos, desenvolvida em Go. A aplicação segue as melhores práticas de desenvolvimento, incluindo uma arquitetura limpa em camadas, injeção de dependência, testes unitários e de integração, e documentação de API automatizada com Swagger.
 
-O objetivo deste desafio é avaliar a curva de aprendizado do nosso time em migrar de uma typescript de programação para Golang.
+## Arquitetura
 
-## Desafio
+O projeto utiliza uma **arquitetura em camadas** para garantir baixo acoplamento e alta coesão, tornando o código mais manutenível, escalável e testável.
 
-O desafio consiste em criar uma API REST que seja capaz de realizar as operações de CRUD (Create, Read, Update, Delete) de um recurso chamado `Product`.
+-   **Handlers (Controllers)**: Responsáveis por receber as requisições HTTP, validar os dados de entrada (DTOs) e chamar a camada de serviço. Não contêm lógica de negócio.
+-   **Services**: Onde reside a lógica de negócio principal da aplicação. Orquestram as operações e manipulam os dados, utilizando os repositórios.
+-   **Repositories**: A única camada que interage diretamente com o banco de dados. Abstrai a lógica de acesso a dados, permitindo que o ORM (GORM) possa ser trocado facilmente no futuro.
 
-### Requisitos
+## Funcionalidades Implementadas
 
-- O recurso `Product` deve possuir os seguintes campos:
-  - `id` (int)
-  - `name` (string)
-  - `price` (float64)
-  - `quantity` (int)
-  - `user_id` (int)
+A API é dividida em dois módulos principais: `auth` e `products`.
 
-**A API deve possuir os seguintes endpoints:**
+### Módulo de Autenticação (`/api/v1/auth`)
 
-- `GET /products?user_id=x`: Deve retornar a lista de todos os produtos cadastrados ou filtrar por `user_id` caso seja passado como query param.
-- `POST /products`: Deve criar um novo produto.
-- `PUT /products/:id`: Deve atualizar o produto com o `id` especificado.
-- `DELETE /products/:id`: Deve deletar o produto com o `id` especificado.
+-   **`POST /auth/sign-up`**: Registra um novo usuário.
+-   **`POST /auth/sign-in`**: Autentica um usuário e retorna um token JWT.
+-   **`GET /auth/me`**: Retorna os dados do usuário autenticado (rota protegida).
 
-### Observações
+### Módulo de Produtos (`/api/v1/products`)
 
-Todas as rotas exceto de consulta (`GET`) devem ser protegidas por autenticação. A autenticação deve ser feita através de um token JWT.
+-   **`POST /products`**: Cria um novo produto (rota protegida).
+-   **`GET /products`**: Lista todos os produtos.
+-   **`GET /products?user_id=:id`**: Filtra produtos por ID de usuário.
+-   **`PUT /products/:id`**: Atualiza um produto existente (rota protegida).
+-   **`DELETE /products/:id`**: Deleta um produto (rota protegida).
 
-### Requisitos técnicos
+## Tecnologias e Ferramentas
 
-- Criar um modulo products dentro da pasta `/apps/api/modules` para organizar o código.
-- Adicionar campos ao modelo `Product`.
-- Criar uma feature por arquivo.
-- Criar um arquivo de rotas para o módulo `Product`.
-- Adicionar as rotas do módulo `Product` ao arquivo de rotas principal.
+-   **Go**: Linguagem de programação principal.
+-   **Fiber**: Framework web de alta performance.
+-   **GORM**: ORM para interação com o banco de dados.
+-   **SQLite**: Suporte para bancos de dados SQL.
+-   **Swagger (Swaggo)**: Para geração automática de documentação da API.
+-   **Testify**: Suite de testes para asserções e mocks.
 
-### Como começar
+## Como Começar
 
-- Crie uma branch a partir da branch `master` com o nome `<seu-nome>`.
-- Desenvolva sua solucao com TDD (Testes ja estão criados).
-- Ao finalizar, abra um PR para a branch `master` e solicite a revisão do seu código.
+### Pré-requisitos
 
-### Dicas
+-   Go (versão 1.22 ou superior)
+-   Git
 
-Para rodar os testes, execute o comando `go test products_test.go`. Utilize a flag `-v` para ver o output dos testes com mais detalhes.
+### 1. Clone o Repositório
+
+```bash
+git clone <URL_DO_SEU_REPOSITORIO>
+cd golang-challange
+```
+
+### 2. Instale as Dependências
+
+```bash
+go mod tidy
+```
+
+### 3. Documentação da API (Swagger)
+
+A API possui uma documentação interativa completa gerada a partir do código.
+Gere os arquivos da documentação (necessário apenas após alterar os comentários godoc):
+
+```bash
+swag init -g apps/api/main.go
+```
+
+Com a aplicação rodando, acesse o seguinte URL no seu navegador:
+http://localhost:3000/swagger/index.html
+
+### 4. Como Rodar os Testes
+
+O projeto conta com testes unitários e testes de integração.
+Rodar TODOS os testes (unitários e integração):
+
+```bash
+go test ./... -v
+```
+
+### Rodar apenas os testes unitários (mais rápidos):
+
+```bash
+go test ./apps/api/modules/products/services/... -v
+```
+
+### 5. Como Rodar a Aplicação
+
+Para rodar a aplicação, execute o seguinte comando:
+```bash
+go run apps/api/main.go
+```
+A API estará disponível em http://localhost:3000.
+
+### 6. Collection Postman
+
+Uma coleção do Postman está disponível no arquivo **Desafio Tech Go.postman_collection.json** para facilitar os testes manuais das rotas da API.

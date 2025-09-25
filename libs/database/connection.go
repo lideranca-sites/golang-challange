@@ -6,29 +6,37 @@ import (
 	"os"
 
 	"gorm.io/driver/postgres"
+	"gorm.io/driver/sqlite"
 	"gorm.io/gorm"
 )
 
-var DB *gorm.DB
-
-func Connect() error {
+func Connect() (*gorm.DB, error) {
 	var err error
+	var db *gorm.DB
 
-	dsn := fmt.Sprintf("host=%s user=%s password=%s dbname=%s port=%s sslmode=disable",
-		os.Getenv("DB_HOST"),
-		os.Getenv("DB_USER"),
-		os.Getenv("DB_PASS"),
-		os.Getenv("DB_NAME"),
-		os.Getenv("DB_PORT"),
-	)
+	driver := os.Getenv("DB_DRIVER")
 
-	DB, err = gorm.Open(postgres.Open(dsn), &gorm.Config{})
-
-	if err != nil {
-		panic("Failed to connect to database!")
+	if driver == "sqlite" {
+		db, err = gorm.Open(sqlite.Open("dev.db"), &gorm.Config{})
+	} else {
+		dsn := fmt.Sprintf("host=%s user=%s password=%s dbname=%s port=%s sslmode=disable",
+			os.Getenv("DB_HOST"),
+			os.Getenv("DB_USER"),
+			os.Getenv("DB_PASS"),
+			os.Getenv("DB_NAME"),
+			os.Getenv("DB_PORT"),
+		)
+		db, err = gorm.Open(postgres.Open(dsn), &gorm.Config{})
 	}
 
-	DB.AutoMigrate(&models.User{}, &models.Product{})
+	if err != nil {
+		return nil, fmt.Errorf("failed to connect to database: %w", err)
+	}
 
-	return nil
+	err = db.AutoMigrate(&models.User{}, &models.Product{})
+	if err != nil {
+		return nil, fmt.Errorf("failed to auto-migrate database: %w", err)
+	}
+
+	return db, nil
 }

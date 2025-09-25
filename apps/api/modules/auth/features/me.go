@@ -2,28 +2,36 @@ package features
 
 import (
 	"example/apps/api/modules/auth/locals"
-	"example/libs/database"
 	"example/libs/database/models"
 
 	"github.com/gofiber/fiber/v2"
+	"gorm.io/gorm"
 )
 
 const MePath = "/me"
 
-func Me(c *fiber.Ctx) error {
-	user_id := c.Locals(locals.UserIdLocal).(int)
+// Me godoc
+// @Summary      Obtém dados do usuário logado
+// @Tags         Auth
+// @Produce      json
+// @Success      200  {object}  map[string]models.User
+// @Security     ApiKeyAuth
+// @Router       /auth/me [get]
+func Me(db *gorm.DB) fiber.Handler {
+	return func(c *fiber.Ctx) error {
+		userId := c.Locals(locals.UserIdLocal).(int)
 
-	var user models.User
+		var user models.User
 
-	result := database.DB.Where("id = ?", user_id).First(&user)
+		result := db.Where("id = ?", userId).First(&user)
+		if result.Error != nil {
+			return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+				"error": "Failed to get user",
+			})
+		}
 
-	if result.Error != nil {
-		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
-			"error": "Failed to get user",
+		return c.Status(fiber.StatusOK).JSON(fiber.Map{
+			"user": user,
 		})
 	}
-
-	return c.Status(fiber.StatusOK).JSON(fiber.Map{
-		"user": user,
-	})
 }
