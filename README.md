@@ -86,7 +86,7 @@ go test ./... -v
 go test ./apps/api/modules/products/services/... -v
 ```
 
-### 3. Como Rodar a Aplicação
+### 5. Como Rodar a Aplicação
 
 Para rodar a aplicação, execute o seguinte comando:
 ```bash
