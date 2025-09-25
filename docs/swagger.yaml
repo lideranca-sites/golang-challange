@@ -1,0 +1,303 @@
+basePath: /api/v1
+definitions:
+  features.HTTPAuthError:
+    properties:
+      error:
+        example: Mensagem de erro aqui
+        type: string
+    type: object
+  features.SignInBodyDTO:
+    properties:
+      email:
+        type: string
+      password:
+        type: string
+    required:
+    - email
+    - password
+    type: object
+  features.SignUpBodyDTO:
+    properties:
+      email:
+        type: string
+      name:
+        type: string
+      password:
+        type: string
+    required:
+    - email
+    - name
+    - password
+    type: object
+  handlers.CreateProductDTO:
+    properties:
+      name:
+        type: string
+      price:
+        type: number
+      quantity:
+        minimum: 0
+        type: integer
+    required:
+    - name
+    - price
+    - quantity
+    type: object
+  handlers.HTTPError:
+    properties:
+      error:
+        example: Mensagem de erro aqui
+        type: string
+    type: object
+  handlers.UpdateProductDTO:
+    properties:
+      name:
+        type: string
+      price:
+        type: number
+      quantity:
+        minimum: 0
+        type: integer
+    required:
+    - name
+    - price
+    - quantity
+    type: object
+  models.Product:
+    properties:
+      created_at:
+        type: string
+      deleted_at:
+        type: string
+      id:
+        type: integer
+      name:
+        type: string
+      price:
+        type: number
+      quantity:
+        type: integer
+      updated_at:
+        type: string
+      user_id:
+        type: integer
+    type: object
+  models.User:
+    properties:
+      created_at:
+        type: string
+      deleted_at:
+        type: string
+      email:
+        type: string
+      id:
+        type: integer
+      name:
+        type: string
+      products:
+        items:
+          $ref: '#/definitions/models.Product'
+        type: array
+      updated_at:
+        type: string
+    type: object
+host: localhost:3000
+info:
+  contact: {}
+  description: API para gerenciamento de produtos.
+  title: API de Desafio Go
+  version: "1.0"
+paths:
+  /auth/me:
+    get:
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties:
+              $ref: '#/definitions/models.User'
+            type: object
+      security:
+      - ApiKeyAuth: []
+      summary: Obtém dados do usuário logado
+      tags:
+      - Auth
+  /auth/sign-in:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: Credenciais de login
+        in: body
+        name: credentials
+        required: true
+        schema:
+          $ref: '#/definitions/features.SignInBodyDTO'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/features.HTTPAuthError'
+      summary: Realiza o login
+      tags:
+      - Auth
+  /auth/sign-up:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: Dados de registro
+        in: body
+        name: user
+        required: true
+        schema:
+          $ref: '#/definitions/features.SignUpBodyDTO'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Registra um novo usuário
+      tags:
+      - Auth
+  /products:
+    get:
+      parameters:
+      - description: Filtrar por ID do usuário
+        in: query
+        name: user_id
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/handlers.HTTPError'
+      summary: Lista produtos
+      tags:
+      - Products
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: Dados do Produto
+        in: body
+        name: product
+        required: true
+        schema:
+          $ref: '#/definitions/handlers.CreateProductDTO'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/handlers.HTTPError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/handlers.HTTPError'
+      security:
+      - ApiKeyAuth: []
+      summary: Cria um produto
+      tags:
+      - Products
+  /products/{id}:
+    delete:
+      parameters:
+      - description: ID do Produto
+        in: path
+        name: id
+        required: true
+        type: integer
+      responses:
+        "204":
+          description: No Content
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/handlers.HTTPError'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/handlers.HTTPError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/handlers.HTTPError'
+      security:
+      - ApiKeyAuth: []
+      summary: Deleta um produto
+      tags:
+      - Products
+    put:
+      consumes:
+      - application/json
+      parameters:
+      - description: ID do Produto
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Dados para atualizar
+        in: body
+        name: product
+        required: true
+        schema:
+          $ref: '#/definitions/handlers.UpdateProductDTO'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/handlers.HTTPError'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/handlers.HTTPError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/handlers.HTTPError'
+      security:
+      - ApiKeyAuth: []
+      summary: Atualiza um produto
+      tags:
+      - Products
+securityDefinitions:
+  ApiKeyAuth:
+    in: header
+    name: Authorization
+    type: apiKey
+swagger: "2.0"

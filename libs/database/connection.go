@@ -10,15 +10,14 @@ import (
 	"gorm.io/gorm"
 )
 
-var DB *gorm.DB
-
-func Connect() error {
+func Connect() (*gorm.DB, error) {
 	var err error
+	var db *gorm.DB
 
 	driver := os.Getenv("DB_DRIVER")
 
 	if driver == "sqlite" {
-		DB, err = gorm.Open(sqlite.Open("dev.db"), &gorm.Config{})
+		db, err = gorm.Open(sqlite.Open("dev.db"), &gorm.Config{})
 	} else {
 		dsn := fmt.Sprintf("host=%s user=%s password=%s dbname=%s port=%s sslmode=disable",
 			os.Getenv("DB_HOST"),
@@ -27,14 +26,17 @@ func Connect() error {
 			os.Getenv("DB_NAME"),
 			os.Getenv("DB_PORT"),
 		)
-		DB, err = gorm.Open(postgres.Open(dsn), &gorm.Config{})
+		db, err = gorm.Open(postgres.Open(dsn), &gorm.Config{})
 	}
 
 	if err != nil {
-		panic("Falha ao conectar-se à base de dados!")
+		return nil, fmt.Errorf("failed to connect to database: %w", err)
 	}
 
-	DB.AutoMigrate(&models.User{}, &models.Product{})
+	err = db.AutoMigrate(&models.User{}, &models.Product{})
+	if err != nil {
+		return nil, fmt.Errorf("failed to auto-migrate database: %w", err)
+	}
 
-	return nil
+	return db, nil
 }

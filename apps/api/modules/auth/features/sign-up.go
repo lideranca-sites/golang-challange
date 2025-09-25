@@ -1,11 +1,11 @@
 package features
 
 import (
-	"example/libs/database"
 	"example/libs/database/models"
 
 	"github.com/gofiber/fiber/v2"
 	"golang.org/x/crypto/bcrypt"
+	"gorm.io/gorm"
 )
 
 const SignUpPath = "/sign-up"
@@ -16,36 +16,49 @@ type SignUpBodyDTO struct {
 	Password *string `validate:"required" json:"password"`
 }
 
-func SignUp(c *fiber.Ctx) error {
-	body := c.Locals("body").(*SignUpBodyDTO)
+// SignUp godoc
+// @Summary      Registra um novo usuário
+// @Tags         Auth
+// @Accept       json
+// @Produce      json
+// @Param        user body SignUpBodyDTO true "Dados de registro"
+// @Success      201  {object}  map[string]string
+// @Router       /auth/sign-up [post]
+func SignUp(db *gorm.DB) fiber.Handler {
+	return func(c *fiber.Ctx) error {
+		body := c.Locals("body").(*SignUpBodyDTO)
 
-	hash, err := bcrypt.GenerateFromPassword([]byte(*body.Password), bcrypt.DefaultCost)
+		hash, err := bcrypt.GenerateFromPassword([]byte(*body.Password), bcrypt.DefaultCost)
+		if err != nil {
+			return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+				"error": "Failed to process request",
+			})
+		}
 
-	user := models.User{
-		Name:     *body.Name,
-		Email:    *body.Email,
-		Password: string(hash),
-	}
+		user := models.User{
+			Name:     *body.Name,
+			Email:    *body.Email,
+			Password: string(hash),
+		}
 
-	result := database.DB.Create(&user)
+		result := db.Create(&user)
+		if result.Error != nil {
+			return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+				"error": "Failed to create user",
+			})
+		}
 
-	if result.Error != nil {
-		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
-			"error": "Failed to create user",
+		token, err := CreateJwtToken(CreateJwtTokenDTO{
+			UserId: user.ID,
+		})
+		if err != nil {
+			return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+				"error": "Failed to create token",
+			})
+		}
+
+		return c.Status(fiber.StatusCreated).JSON(fiber.Map{
+			"access_token": token,
 		})
 	}
-
-	token, err := CreateJwtToken(CreateJwtTokenDTO{
-		UserId: user.ID,
-	})
-
-	if err != nil {
-		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
-			"error": "Failed to create user",
-		})
-	}
-
-	return c.Status(fiber.StatusCreated).JSON(fiber.Map{
-		"access_token": token,
-	})
 }

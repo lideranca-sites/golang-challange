@@ -16,11 +16,11 @@ func validateUpdateProduct(c *fiber.Ctx) error {
 	return validation.ValidateBody(c, &handlers.UpdateProductDTO{})
 }
 
-func SetupRoutes(router fiber.Router) {
+func SetupRoutes(router fiber.Router, handler *handlers.ProductHandler) {
 	products := router.Group("/products")
 
-	products.Post("/", middleware.JWTProtected, validateCreateProduct, handlers.CreateProduct)
-	products.Get("/", handlers.GetProducts)
-	products.Put("/:id", middleware.JWTProtected, validateUpdateProduct, handlers.UpdateProduct)
-	products.Delete("/:id", middleware.JWTProtected, handlers.DeleteProduct)
+	products.Post("/", middleware.JWTProtected, validateCreateProduct, handler.CreateProduct)
+	products.Get("/", handler.GetProducts)
+	products.Put("/:id", middleware.JWTProtected, validateUpdateProduct, handler.UpdateProduct)
+	products.Delete("/:id", middleware.JWTProtected, handler.DeleteProduct)
 }

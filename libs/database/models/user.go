@@ -9,8 +9,8 @@ type User struct {
 	Name      string    `json:"name"`
 	Email     string    `json:"email"`
 	Password  string    `json:"-"`
-	CreatedAt string    `json:"created_at"`
 	Products  []Product `json:"products"`
+	CreatedAt string    `json:"created_at"`
 	UpdatedAt string    `json:"updated_at"`
 	DeletedAt *string   `json:"deleted_at,omitempty"`
 }
