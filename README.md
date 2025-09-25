@@ -59,15 +59,7 @@ cd golang-challange
 go mod tidy
 ```
 
-### 3. Como Rodar a Aplicação
-
-Para rodar a aplicação, execute o seguinte comando:
-```bash
-go run apps/api/main.go
-```
-A API estará disponível em http://localhost:3000.
-
-### 4. Documentação da API (Swagger)
+### 3. Documentação da API (Swagger)
 
 A API possui uma documentação interativa completa gerada a partir do código.
 Gere os arquivos da documentação (necessário apenas após alterar os comentários godoc):
@@ -79,7 +71,7 @@ swag init -g apps/api/main.go
 Com a aplicação rodando, acesse o seguinte URL no seu navegador:
 http://localhost:3000/swagger/index.html
 
-### 5. Como Rodar os Testes
+### 4. Como Rodar os Testes
 
 O projeto conta com testes unitários e testes de integração.
 Rodar TODOS os testes (unitários e integração):
@@ -93,6 +85,15 @@ go test ./... -v
 ```bash
 go test ./apps/api/modules/products/services/... -v
 ```
+
+### 3. Como Rodar a Aplicação
+
+Para rodar a aplicação, execute o seguinte comando:
+```bash
+go run apps/api/main.go
+```
+A API estará disponível em http://localhost:3000.
+
 ### 6. Collection Postman
 
 Uma coleção do Postman está disponível no arquivo **Desafio Tech Go.postman_collection.json** para facilitar os testes manuais das rotas da API.
