@@ -26,7 +26,7 @@ func SetupRoutes(app fiber.Router) {
 	service := services.NewProductsServices(repository, userRepo, logger)
 	controller := NewProductsController(service)
 
-	group.Get(DEFAULT_PRODUCT_ROUTE, middleware.JWTProtected, controller.ListAll)
+	group.Get(DEFAULT_PRODUCT_ROUTE, controller.ListAll)
 	group.Post(DEFAULT_PRODUCT_ROUTE, middleware.JWTProtected, ValidateProductBodyMiddleware, controller.New)
 	group.Put(PRODUCT_ROUTE_ID, middleware.JWTProtected, controller.UpdateProduct)
 	group.Delete(PRODUCT_ROUTE_ID, middleware.JWTProtected, controller.DeleteProduct)
