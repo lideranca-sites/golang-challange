@@ -6,7 +6,6 @@ import (
 	api_errors "example/apps/api/domain/errors"
 	"example/libs/database"
 	"example/libs/database/models"
-	"fmt"
 
 	"gorm.io/gorm"
 )
@@ -26,12 +25,9 @@ func NewUserGormRepository() (UserGormRepository, error) {
 
 func (ur UserGormRepository) CreateUser(input entities.UserEntity) (entities.UserEntity, error) {
 	user := models.UserModelFromDto(input.ToDto())
-	fmt.Printf("\n%#v\n", user)
 	result := ur.client.Create(&user)
-	fmt.Printf("\n%#v\n", result)
 
 	if result.RowsAffected < 1 {
-		fmt.Println(result.Error.Error())
 		return entities.UserEntity{}, api_errors.New("failed to create new user", 400)
 	}
 
@@ -67,6 +63,5 @@ func (ur UserGormRepository) SaveUser(input *entities.UserEntity) error {
 		return api_errors.New(result.Error.Error(), 400)
 	}
 	*input = inputModel.ToEntity()
-	fmt.Printf("\n%#v\n", input)
 	return nil
 }

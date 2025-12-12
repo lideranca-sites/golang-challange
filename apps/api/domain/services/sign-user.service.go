@@ -7,7 +7,6 @@ import (
 	api_errors "example/apps/api/domain/errors"
 	"example/apps/api/domain/ports"
 	domain_repositories "example/apps/api/domain/repositories/users"
-	"fmt"
 )
 
 type userRepository interface {
@@ -42,7 +41,6 @@ func (su SignUserServices) SignIn(input dto.UserDTO) (string, api_errors.ApiErro
 func (su SignUserServices) SignUp(input dto.UserDTO) (string, api_errors.ApiErrorPort) {
 	passwordHash, err := su.crypto.GenerateHash(input.Password)
 	if err != nil {
-		fmt.Println(err.Error())
 		return api_errors.ErrorHandler("", err)
 	}
 
@@ -50,7 +48,6 @@ func (su SignUserServices) SignUp(input dto.UserDTO) (string, api_errors.ApiErro
 	inputEntity := entities.UserEntityFromDto(input)
 	user, err := su.repository.CreateUser(inputEntity)
 	if err != nil {
-		fmt.Println(err.Error())
 		return api_errors.ErrorHandler("", err)
 	}
 

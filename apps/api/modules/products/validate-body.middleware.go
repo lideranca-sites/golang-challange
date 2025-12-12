@@ -9,6 +9,5 @@ import (
 )
 
 func ValidateProductBodyMiddleware(c *fiber.Ctx) error {
-	fmt.Println("Validatig body?")
 	return validation.ValidateBody(c, &dto.ProductDTO{})
 }
