@@ -67,7 +67,7 @@ func (pr ProductGormRepository) SaveProduct(input entities.ProductEntity) (entit
 }
 
 func (pr ProductGormRepository) DeleteProductById(id uint) error {
-	result := pr.client.Delete(&entities.ProductEntity{}, id)
+	result := pr.client.Delete(&models.Product{}, id)
 	if result.RowsAffected < 1 {
 		return result.Error
 	}
