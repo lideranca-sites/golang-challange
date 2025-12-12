@@ -8,7 +8,7 @@ import (
 	"testing"
 
 	"example/apps/api/infra/server"
-	"example/apps/api/modules/auth/features"
+	common_features "example/apps/api/modules/common"
 	"example/libs/database"
 	"example/libs/database/models"
 
@@ -74,7 +74,7 @@ func (suite *TestSuiteProduct) SetupTest() {
 	result = suite.db.Create(suite.product)
 	assert.NoError(suite.T(), result.Error)
 
-	token, err := features.CreateJwtToken(features.CreateJwtTokenDTO{
+	token, err := common_features.CreateJwtToken(common_features.CreateJwtTokenDTO{
 		UserId: suite.user.ID,
 	})
 
@@ -236,7 +236,7 @@ func (suite *TestSuiteProduct) TestUpdateProduct() {
 	assert.Contains(suite.T(), response, "product")
 
 	assert.Equal(suite.T(), "Product updated successfully", response["message"])
-	
+
 	assert.Contains(suite.T(), response["product"], "id")
 	assert.Contains(suite.T(), response["product"], "name")
 	assert.Contains(suite.T(), response["product"], "price")
