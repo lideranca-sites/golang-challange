@@ -3,6 +3,7 @@ package products
 import (
     "example/libs/database"
     "example/libs/database/models"
+    
     "github.com/gofiber/fiber/v2"
 )
 

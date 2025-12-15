@@ -2,8 +2,10 @@ package products
 
 import (
     "strconv"
+    
     "example/libs/database"
     "example/libs/database/models"
+
     "github.com/gofiber/fiber/v2"
 )
 

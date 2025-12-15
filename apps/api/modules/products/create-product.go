@@ -4,6 +4,7 @@ import (
     "example/apps/api/modules/auth/locals"
     "example/libs/database"
     "example/libs/database/models"
+    
     "github.com/gofiber/fiber/v2"
 )
 
