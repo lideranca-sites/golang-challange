@@ -10,19 +10,23 @@ import (
 const CreatePath = "/"
 
 type CreateProductBodyDTO struct {
-	Name     *string `validate:"required" json:"name"`
-	Price    *int    `validate:"required" json:"price"`
-	Quantity *int    `validate:"required" json:"quantity"`
-	UserID   *int    `validate:"required" json:"user_id"`
+	Name     *string  `validate:"required" json:"name"`
+	Price    *float64 `validate:"required,gt=0" json:"price"`
+	Quantity *int     `validate:"required,gt=0" json:"quantity"`
+	UserID   *int     `validate:"required" json:"user_id"`
 }
 
 func Create(c *fiber.Ctx) error {
-	body := c.Locals("body").(*CreateProductBodyDTO)
+	var body CreateProductBodyDTO
 	UserID := c.Locals("user_id").(int)
+
+	if err := c.BodyParser(&body); err != nil {
+		return fiber.ErrBadRequest
+	}
 
 	product := models.Product{
 		Name:     *body.Name,
-		Price:    *body.Price,
+		Price:    float64(*body.Price),
 		Quantity: *body.Quantity,
 		UserID:   int(UserID),
 	}

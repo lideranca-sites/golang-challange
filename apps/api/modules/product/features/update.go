@@ -10,9 +10,9 @@ import (
 const UpdatePath = "/:id"
 
 type UpdateProductBodyDTO struct {
-	Name     *string `validate:"required" json:"name"`
-	Price    *int    `validate:"required" json:"price"`
-	Quantity *int    `validate:"required" json:"quantity"`
+	Name     *string  `validate:"required" json:"name"`
+	Price    *float64 `validate:"required" json:"price"`
+	Quantity *int     `validate:"required" json:"quantity"`
 }
 
 func Update(c *fiber.Ctx) error {
@@ -21,7 +21,11 @@ func Update(c *fiber.Ctx) error {
 		return fiber.ErrBadRequest
 	}
 
-	body := c.Locals("body").(*UpdateProductBodyDTO)
+	var body UpdateProductBodyDTO
+
+	if err := c.BodyParser(&body); err != nil {
+		return fiber.ErrBadRequest
+	}
 
 	var product models.Product
 
@@ -33,7 +37,7 @@ func Update(c *fiber.Ctx) error {
 		product.Name = *body.Name
 	}
 	if body.Price != nil {
-		product.Price = *body.Price
+		product.Price = float64(*body.Price)
 	}
 	if body.Quantity != nil {
 		product.Quantity = *body.Quantity
