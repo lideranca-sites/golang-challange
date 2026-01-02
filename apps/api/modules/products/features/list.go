@@ -23,6 +23,8 @@ func ListProducts(c *fiber.Ctx) error {
 		})
 	}
 
+	query := database.DB.Model(&models.Product{})
+
 	if filters.UserId != "" {
 		_, err := strconv.Atoi(filters.UserId)
 		
@@ -31,14 +33,10 @@ func ListProducts(c *fiber.Ctx) error {
 				"error": "Invalid user ID",
 			})
 		}
-	}
-	
-	query := database.DB.Model(&models.Product{})
-	
-	if filters.UserId != "" {
+
 		query = query.Where("user_id = ?", filters.UserId)
 	}
-
+	
 	if result := query.Find(&products); result.Error != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
 			"error": "Failed to list products",
