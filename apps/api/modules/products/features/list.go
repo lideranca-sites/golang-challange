@@ -3,6 +3,7 @@ package features
 import (
 	"example/libs/database"
 	"example/libs/database/models"
+	"strconv"
 
 	"github.com/gofiber/fiber/v2"
 )
@@ -22,8 +23,16 @@ func ListProducts(c *fiber.Ctx) error {
 		})
 	}
 
+	_, err := strconv.Atoi(filters.UserId)
+	
+	if err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+			"error": "Invalid user ID",
+		})
+	}
+	
 	query := database.DB.Model(&models.Product{})
-
+	
 	if filters.UserId != "" {
 		query = query.Where("user_id = ?", filters.UserId)
 	}
