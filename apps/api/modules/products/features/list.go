@@ -23,12 +23,14 @@ func ListProducts(c *fiber.Ctx) error {
 		})
 	}
 
-	_, err := strconv.Atoi(filters.UserId)
-	
-	if err != nil {
-		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-			"error": "Invalid user ID",
-		})
+	if filters.UserId != "" {
+		_, err := strconv.Atoi(filters.UserId)
+		
+		if  err != nil {
+			return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+				"error": "Invalid user ID",
+			})
+		}
 	}
 	
 	query := database.DB.Model(&models.Product{})
