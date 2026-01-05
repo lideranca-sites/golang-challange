@@ -10,6 +10,8 @@ import (
 func SetupRoutes(app fiber.Router) {
 	group := app.Group("/product")
 
-	group.Get("/",  middleware.JWTProtected, features.FindByUser)
+	group.Get("/", features.FindByUser)
+
+	group.Post("/", middleware.JWTProtected, features.CreateProduct)
 
 }
