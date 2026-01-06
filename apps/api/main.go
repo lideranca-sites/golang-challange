@@ -3,6 +3,7 @@ package main
 import (
 	"example/apps/api/infra/server"
 	"example/libs/database"
+	"fmt"
 
 	"github.com/joho/godotenv"
 )
@@ -18,5 +19,9 @@ func main() {
 
 	app := server.Setup()
 
-	app.Listen(":3000")
+	fmt.Println("Server is running on port 3000")
+
+	if err := app.Listen(":3000"); err != nil {
+		panic(err)
+	}
 }
