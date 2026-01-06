@@ -16,4 +16,5 @@ func SetupRoutes(app fiber.Router) {
 
 	group.Delete("/", middleware.JWTProtected, features.DeleteProduct)
 
+	group.Put("/", middleware.JWTProtected, features.UpdateProduct)
 }
