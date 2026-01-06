@@ -20,7 +20,6 @@ func List(c *fiber.Ctx) error {
 			})
 		}
 	} else {
-		// Retorna todos os produtos
 		result := database.DB.Find(&products)
 		if result.Error != nil {
 			return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
