@@ -10,11 +10,11 @@ import (
 func SetupRoutes(app fiber.Router) {
 	group := app.Group("/product")
 
-	group.Get("/", features.List)
+	group.Get(features.ListProductPath, features.List)
 
-	group.Post("/", middleware.JWTProtected, features.CreateProduct)
+	group.Post(features.CreateProductPath, middleware.JWTProtected, features.CreateProduct)
 
-	group.Delete("/", middleware.JWTProtected, features.DeleteProduct)
+	group.Delete(features.DeleteProductPath, middleware.JWTProtected, features.DeleteProduct)
 
-	group.Put("/", middleware.JWTProtected, features.UpdateProduct)
+	group.Put(features.UpdateProductPath, middleware.JWTProtected, features.UpdateProduct)
 }

@@ -7,6 +7,8 @@ import (
 	"github.com/gofiber/fiber/v2"
 )
 
+const ListProductPath = "/"
+
 func List(c *fiber.Ctx) error {
 	userID := c.Query("user_id")
 
