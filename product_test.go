@@ -86,7 +86,7 @@ func (suite *TestSuiteProduct) SetupTest() {
 func (suite *TestSuiteProduct) TestCreateProduct() {
 	new_product := &models.Product{
 		Name:     "Product 2",
-		Price:    1000,
+		Price:    1000.0,
 		Quantity: 10,
 	}
 
@@ -126,7 +126,7 @@ func (suite *TestSuiteProduct) TestCreateProduct() {
 	assert.Contains(suite.T(), response["product"], "user_id")
 
 	assert.Equal(suite.T(), new_product.Name, response["product"].(map[string]interface{})["name"])
-	assert.Equal(suite.T(), new_product.Price, int(response["product"].(map[string]interface{})["price"].(float64)))
+	assert.Equal(suite.T(), new_product.Price, response["product"].(map[string]interface{})["price"].(float64))
 	assert.Equal(suite.T(), new_product.Quantity, int(response["product"].(map[string]interface{})["quantity"].(float64)))
 	assert.Equal(suite.T(), suite.user.ID, int(response["product"].(map[string]interface{})["user_id"].(float64)))
 }
@@ -161,7 +161,7 @@ func (suite *TestSuiteProduct) TestGetProductsByUser() {
 
 	assert.Equal(suite.T(), suite.product.ID, int(products[0].(map[string]interface{})["id"].(float64)))
 	assert.Equal(suite.T(), suite.product.Name, products[0].(map[string]interface{})["name"])
-	assert.Equal(suite.T(), suite.product.Price, int(products[0].(map[string]interface{})["price"].(float64)))
+	assert.Equal(suite.T(), suite.product.Price, products[0].(map[string]interface{})["price"].(float64))
 	assert.Equal(suite.T(), suite.product.Quantity, int(products[0].(map[string]interface{})["quantity"].(float64)))
 	assert.Equal(suite.T(), suite.product.UserID, int(products[0].(map[string]interface{})["user_id"].(float64)))
 }
@@ -196,7 +196,7 @@ func (suite *TestSuiteProduct) TestGetProducts() {
 
 	assert.Equal(suite.T(), suite.product.ID, int(products[0].(map[string]interface{})["id"].(float64)))
 	assert.Equal(suite.T(), suite.product.Name, products[0].(map[string]interface{})["name"])
-	assert.Equal(suite.T(), suite.product.Price, int(products[0].(map[string]interface{})["price"].(float64)))
+	assert.Equal(suite.T(), suite.product.Price, products[0].(map[string]interface{})["price"].(float64))
 	assert.Equal(suite.T(), suite.product.Quantity, int(products[0].(map[string]interface{})["quantity"].(float64)))
 	assert.Equal(suite.T(), suite.product.UserID, int(products[0].(map[string]interface{})["user_id"].(float64)))
 }
@@ -204,7 +204,7 @@ func (suite *TestSuiteProduct) TestGetProducts() {
 func (suite *TestSuiteProduct) TestUpdateProduct() {
 	new_product := &models.Product{
 		Name:     suite.product.Name,
-		Price:    2000,
+		Price:    2000.0,
 		Quantity: 20,
 	}
 
@@ -236,7 +236,7 @@ func (suite *TestSuiteProduct) TestUpdateProduct() {
 	assert.Contains(suite.T(), response, "product")
 
 	assert.Equal(suite.T(), "Product updated successfully", response["message"])
-	
+
 	assert.Contains(suite.T(), response["product"], "id")
 	assert.Contains(suite.T(), response["product"], "name")
 	assert.Contains(suite.T(), response["product"], "price")
@@ -244,7 +244,7 @@ func (suite *TestSuiteProduct) TestUpdateProduct() {
 
 	assert.Equal(suite.T(), suite.product.ID, int(response["product"].(map[string]interface{})["id"].(float64)))
 	assert.Equal(suite.T(), new_product.Name, response["product"].(map[string]interface{})["name"])
-	assert.Equal(suite.T(), new_product.Price, int(response["product"].(map[string]interface{})["price"].(float64)))
+	assert.Equal(suite.T(), new_product.Price, response["product"].(map[string]interface{})["price"].(float64))
 	assert.Equal(suite.T(), new_product.Quantity, int(response["product"].(map[string]interface{})["quantity"].(float64)))
 }
 
