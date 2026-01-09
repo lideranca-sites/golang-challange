@@ -20,7 +20,7 @@ func SignIn(c *fiber.Ctx) error {
 
 	var user models.User
 
-	result := database.DB.Where("email = ?", *body.Email).First(&user)
+	result := database.DB.Where("LOWER(email) = LOWER(?)", *body.Email).First(&user)
 
 	if result.Error != nil {
 		return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{
@@ -42,7 +42,7 @@ func SignIn(c *fiber.Ctx) error {
 
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
-			"error": "Failed to create user",
+			"error": "Failed to create token",
 		})
 	}
 

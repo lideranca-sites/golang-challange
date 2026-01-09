@@ -5,6 +5,7 @@ import (
 	"database/sql"
 	"encoding/json"
 	"net/http"
+	"os"
 	"testing"
 
 	"example/apps/api/infra/server"
@@ -16,7 +17,7 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/suite"
 	"golang.org/x/crypto/bcrypt"
-	"gorm.io/driver/sqlite"
+	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 )
 
@@ -35,11 +36,27 @@ type TestSuiteProduct struct {
 func (suite *TestSuiteProduct) SetupTest() {
 	var err error
 
+	// Set JWT_SECRET for tests if not already set
+	if os.Getenv("JWT_SECRET") == "" {
+		os.Setenv("JWT_SECRET", "test-secret-key")
+	}
+
 	suite.app = server.Setup()
 
-	suite.db, err = gorm.Open(sqlite.Open("file::memory:"), &gorm.Config{})
+	// Use PostgreSQL for tests - connection string for Docker container
+	dsn := "host=localhost user=postgres password=postgres dbname=postgres port=5432 sslmode=disable"
+
+	// Allow override via environment variable
+	if os.Getenv("TEST_DB_DSN") != "" {
+		dsn = os.Getenv("TEST_DB_DSN")
+	}
+
+	suite.db, err = gorm.Open(postgres.Open(dsn), &gorm.Config{})
 	database.DB = suite.db
 	assert.NoError(suite.T(), err)
+
+	// Drop and recreate tables for clean test environment
+	suite.db.Migrator().DropTable(&models.User{}, &models.Product{})
 
 	suite.connection, err = suite.db.DB()
 	assert.NoError(suite.T(), err)
@@ -54,9 +71,8 @@ func (suite *TestSuiteProduct) SetupTest() {
 	}
 
 	suite.product = &models.Product{
-		ID:       1,
 		Name:     "Product 1",
-		Price:    1000,
+		Price:    1000.0,
 		Quantity: 10,
 		UserID:   suite.user.ID,
 	}
@@ -86,7 +102,7 @@ func (suite *TestSuiteProduct) SetupTest() {
 func (suite *TestSuiteProduct) TestCreateProduct() {
 	new_product := &models.Product{
 		Name:     "Product 2",
-		Price:    1000,
+		Price:    1000.0,
 		Quantity: 10,
 	}
 
@@ -126,7 +142,7 @@ func (suite *TestSuiteProduct) TestCreateProduct() {
 	assert.Contains(suite.T(), response["product"], "user_id")
 
 	assert.Equal(suite.T(), new_product.Name, response["product"].(map[string]interface{})["name"])
-	assert.Equal(suite.T(), new_product.Price, int(response["product"].(map[string]interface{})["price"].(float64)))
+	assert.Equal(suite.T(), new_product.Price, response["product"].(map[string]interface{})["price"].(float64))
 	assert.Equal(suite.T(), new_product.Quantity, int(response["product"].(map[string]interface{})["quantity"].(float64)))
 	assert.Equal(suite.T(), suite.user.ID, int(response["product"].(map[string]interface{})["user_id"].(float64)))
 }
@@ -161,7 +177,7 @@ func (suite *TestSuiteProduct) TestGetProductsByUser() {
 
 	assert.Equal(suite.T(), suite.product.ID, int(products[0].(map[string]interface{})["id"].(float64)))
 	assert.Equal(suite.T(), suite.product.Name, products[0].(map[string]interface{})["name"])
-	assert.Equal(suite.T(), suite.product.Price, int(products[0].(map[string]interface{})["price"].(float64)))
+	assert.Equal(suite.T(), suite.product.Price, products[0].(map[string]interface{})["price"].(float64))
 	assert.Equal(suite.T(), suite.product.Quantity, int(products[0].(map[string]interface{})["quantity"].(float64)))
 	assert.Equal(suite.T(), suite.product.UserID, int(products[0].(map[string]interface{})["user_id"].(float64)))
 }
@@ -196,7 +212,7 @@ func (suite *TestSuiteProduct) TestGetProducts() {
 
 	assert.Equal(suite.T(), suite.product.ID, int(products[0].(map[string]interface{})["id"].(float64)))
 	assert.Equal(suite.T(), suite.product.Name, products[0].(map[string]interface{})["name"])
-	assert.Equal(suite.T(), suite.product.Price, int(products[0].(map[string]interface{})["price"].(float64)))
+	assert.Equal(suite.T(), suite.product.Price, products[0].(map[string]interface{})["price"].(float64))
 	assert.Equal(suite.T(), suite.product.Quantity, int(products[0].(map[string]interface{})["quantity"].(float64)))
 	assert.Equal(suite.T(), suite.product.UserID, int(products[0].(map[string]interface{})["user_id"].(float64)))
 }
@@ -204,7 +220,7 @@ func (suite *TestSuiteProduct) TestGetProducts() {
 func (suite *TestSuiteProduct) TestUpdateProduct() {
 	new_product := &models.Product{
 		Name:     suite.product.Name,
-		Price:    2000,
+		Price:    2000.0,
 		Quantity: 20,
 	}
 
@@ -242,9 +258,9 @@ func (suite *TestSuiteProduct) TestUpdateProduct() {
 	assert.Contains(suite.T(), response["product"], "price")
 	assert.Contains(suite.T(), response["product"], "quantity")
 
-	assert.Equal(suite.T(), suite.product.ID, int(response["product"].(map[string]interface{})["id"].(float64)))
+	assert.Equal(suite.T(), uint(suite.product.ID), uint(response["product"].(map[string]interface{})["id"].(float64)))
 	assert.Equal(suite.T(), new_product.Name, response["product"].(map[string]interface{})["name"])
-	assert.Equal(suite.T(), new_product.Price, int(response["product"].(map[string]interface{})["price"].(float64)))
+	assert.Equal(suite.T(), new_product.Price, response["product"].(map[string]interface{})["price"].(float64))
 	assert.Equal(suite.T(), new_product.Quantity, int(response["product"].(map[string]interface{})["quantity"].(float64)))
 }
 
@@ -263,8 +279,12 @@ func (suite *TestSuiteProduct) TestDeleteProduct() {
 }
 
 func (suite *TestSuiteProduct) TearDownSuite() {
-	suite.db.Migrator().DropTable(&models.User{}, &models.Product{})
-	suite.connection.Close()
+	if suite.db != nil {
+		suite.db.Migrator().DropTable(&models.User{}, &models.Product{})
+	}
+	if suite.connection != nil {
+		suite.connection.Close()
+	}
 }
 
 func TestProduct(t *testing.T) {

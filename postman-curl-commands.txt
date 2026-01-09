@@ -1,0 +1,74 @@
+# Comandos cURL
+# IMPORTANTE: Para testes locais, substitua {{base_url}} por http://localhost:3000
+# Exemplo: '{{base_url}}/api/v1/auth/sign-up' -> 'http://localhost:3000/api/v1/auth/sign-up'
+
+# ============================================
+# 1. SIGN-UP (Criar Usuário)
+# ============================================
+curl --location '{{base_url}}/api/v1/auth/sign-up' \
+--header 'Content-Type: application/json' \
+--data '{
+    "name": "John Doe",
+    "email": "johndoe@lidercap.com.br",
+    "password": "100100"
+}'
+
+# ============================================
+# 2. SIGN-IN (Fazer Login)
+# ============================================
+curl --location '{{base_url}}/api/v1/auth/sign-in' \
+--header 'Content-Type: application/json' \
+--data '{
+    "email": "johndoe@lidercap.com.br",
+    "password": "100100"
+}'
+
+# ============================================
+# 3. AUTH/ME (Obter dados do usuário)
+# IMPORTANTE: Substitua SEU_TOKEN_AQUI pelo access_token recebido do sign-in
+# ============================================
+curl --location '{{base_url}}/api/v1/auth/me' \
+--header 'Authorization: Bearer SEU_TOKEN_AQUI'
+
+# ============================================
+# 4. GET PRODUCTS (Listar produtos)
+# ============================================
+curl --location '{{base_url}}/api/v1/products'
+
+# ============================================
+# 5. GET PRODUCTS BY USER ID
+# ============================================
+curl --location '{{base_url}}/api/v1/products?user_id=1'
+
+# ============================================
+# 6. CREATE PRODUCT (Criar produto)
+# IMPORTANTE: Substitua SEU_TOKEN_AQUI pelo access_token recebido do sign-in
+# ============================================
+curl --location '{{base_url}}/api/v1/products' \
+--header 'Content-Type: application/json' \
+--header 'Authorization: Bearer SEU_TOKEN_AQUI' \
+--data '{
+    "name": "Produto Teste",
+    "price": 99.99,
+    "quantity": 10
+}'
+
+# ============================================
+# 7. UPDATE PRODUCT (Atualizar produto)
+# IMPORTANTE: Substitua SEU_TOKEN_AQUI pelo access_token e 1 pelo ID do produto
+# ============================================
+curl --location --request PUT '{{base_url}}/api/v1/products/1' \
+--header 'Content-Type: application/json' \
+--header 'Authorization: Bearer SEU_TOKEN_AQUI' \
+--data '{
+    "name": "Produto Atualizado",
+    "price": 149.99,
+    "quantity": 20
+}'
+
+# ============================================
+# 8. DELETE PRODUCT (Deletar produto)
+# IMPORTANTE: Substitua SEU_TOKEN_AQUI pelo access_token e 1 pelo ID do produto
+# ============================================
+curl --location --request DELETE '{{base_url}}/api/v1/products/1' \
+--header 'Authorization: Bearer SEU_TOKEN_AQUI'
