@@ -5,6 +5,7 @@ import (
 	"example/libs/database"
 	"example/libs/database/models"
 	"strconv"
+
 	"github.com/gofiber/fiber/v2"
 )
 
@@ -35,5 +36,7 @@ func DeleteProduct(c *fiber.Ctx) error {
 		})
 	}
 
-	return c.SendStatus(fiber.StatusNoContent)
+	return c.Status(fiber.StatusOK).JSON(fiber.Map{
+		"message": "Product deleted successfully",
+	})
 }

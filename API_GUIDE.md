@@ -273,7 +273,12 @@ curl --location --request DELETE '{{base_url}}/api/v1/products/1' \
 
 **💡 Para testes locais:** Substitua `{{base_url}}` por `http://localhost:3000`, `SEU_TOKEN_AQUI` pelo `access_token` e `1` pelo ID do produto que deseja deletar
 
-**Resposta de sucesso (204):** Sem conteúdo no body.
+**Resposta de sucesso (200):**
+```json
+{
+  "message": "Product deleted successfully"
+}
+```
 
 ---
 
