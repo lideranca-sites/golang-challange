@@ -1,8 +1,12 @@
 package auth
 
 import (
-	"example/apps/api/modules/auth/features"
-	"example/apps/api/modules/auth/middleware"
+	"example/apps/api/domain/services"
+	gorm_repositories "example/apps/api/infra/database/gorm"
+	auth_controllers "example/apps/api/modules/auth/controllers"
+	features "example/apps/api/modules/auth/controllers"
+	"example/apps/api/modules/common/middleware"
+	"example/apps/api/utils"
 	"example/apps/api/validation"
 
 	"github.com/gofiber/fiber/v2"
@@ -19,10 +23,20 @@ func validateSignUp(c *fiber.Ctx) error {
 func SetupRoutes(app fiber.Router) {
 	group := app.Group("/auth")
 
-	group.Post(features.SignInPath, validateSignIn, features.SignIn)
+	repository, err := gorm_repositories.NewUserGormRepository()
+	if err != nil {
+		panic(err)
+	}
 
-	group.Post(features.SignUpPath, validateSignUp, features.SignUp)
+	crypto := utils.NewCryptoUtils()
+	token := utils.NewJwtUtils()
+	service := services.NewSignUserServices(repository, &crypto, &token)
+	controller := auth_controllers.NewSignUsersController(service)
 
-	group.Get(features.MePath, middleware.JWTProtected, features.Me)
+	group.Post(auth_controllers.SIGN_IN_PATH, validateSignIn, controller.SignIn)
+
+	group.Post(auth_controllers.SIGN_UP_PATH, validateSignUp, controller.SignUp)
+
+	group.Get(auth_controllers.ME_PATH, middleware.JWTProtected, controller.Me)
 
 }

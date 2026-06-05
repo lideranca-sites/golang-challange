@@ -8,7 +8,7 @@ import (
 	"testing"
 
 	"example/apps/api/infra/server"
-	"example/apps/api/modules/auth/features"
+	features "example/apps/api/modules/auth/controllers"
 	"example/libs/database"
 	"example/libs/database/models"
 
@@ -46,16 +46,16 @@ func (suite *TestSuiteAuth) SetupSuite() {
 	suite.db.AutoMigrate(&models.User{}, &models.Product{})
 
 	suite.user = &models.User{
-		ID:       1,
+		ID:       uint(1),
 		Name:     "John Doe",
 		Email:    "john@doe.com",
 		Password: "123456",
 	}
 
 	suite.product = &models.Product{
-		ID:     1,
+		ID:     uint(1),
 		Name:   "Product 1",
-		UserID: suite.user.ID,
+		UserID: uint(suite.user.ID),
 	}
 
 	hash, err := bcrypt.GenerateFromPassword([]byte(suite.user.Password), bcrypt.DefaultCost)

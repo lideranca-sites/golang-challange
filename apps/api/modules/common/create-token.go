@@ -1,4 +1,4 @@
-package features
+package common_features
 
 import (
 	"os"
@@ -8,7 +8,7 @@ import (
 )
 
 type CreateJwtTokenDTO struct {
-	UserId int
+	UserId uint
 }
 
 func CreateJwtToken(dto CreateJwtTokenDTO) (string, error) {

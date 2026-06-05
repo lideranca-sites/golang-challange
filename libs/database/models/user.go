@@ -1,26 +1,53 @@
 package models
 
 import (
-	"errors"
+	"example/apps/api/domain/dto"
+	"example/apps/api/domain/entities"
+	"time"
+
+	"gorm.io/gorm"
 )
 
 type User struct {
-	ID        int       `json:"id" gorm:"primaryKey"`
-	Name      string    `json:"name"`
-	Email     string    `json:"email"`
-	Password  string    `json:"-"`
-	CreatedAt string    `json:"created_at"`
-	Products  []Product `json:"products"`
-	UpdatedAt string    `json:"updated_at"`
-	DeletedAt *string   `json:"deleted_at,omitempty"`
+	gorm.Model `gorm:"embedded"`
+	ID         uint      `gorm:"primaryKey"`
+	Name       string    `gorm:"type:varchar(100);not null"`
+	Email      string    `gorm:"type:varchar(100);not null;uniqueIndex:unique_email"`
+	Password   string    `gorm:"type:varchar(256);not null"`
+	Products   []Product `gorm:"foreignKey:UserID;references:ID"`
+	CreatedAt  time.Time `gorm:"autoCreateTime"`
+	UpdatedAt  time.Time `gorm:"autoUpdateTime:true"`
 }
 
-func (u *User) AddProduct(product Product) error {
-	if len(u.Products) >= 5 {
-		return errors.New("User can't have more than 5 products")
+func (u User) ToEntity() entities.UserEntity {
+	products := make([]entities.ProductEntity, len(u.Products))
+	for i, p := range u.Products {
+		products[i] = p.ToEntity()
 	}
 
-	u.Products = append(u.Products, product)
+	return entities.UserEntity{
+		ID:        u.ID,
+		Name:      u.Name,
+		Email:     u.Email,
+		Password:  u.Password,
+		CreatedAt: u.CreatedAt,
+		UpdatedAt: u.UpdatedAt,
+		DeletedAt: u.DeletedAt.Time,
+		Products:  products,
+	}
+}
 
-	return nil
+func UserModelFromDto(input dto.UserDTO) User {
+	products := make([]Product, len(input.Products))
+	for i, p := range input.Products {
+		products[i] = ProductModelFromDto(p)
+	}
+
+	return User{
+		ID:       input.ID,
+		Name:     input.Name,
+		Email:    input.Email,
+		Password: input.Password,
+		Products: products,
+	}
 }
