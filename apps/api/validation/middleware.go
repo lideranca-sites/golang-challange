@@ -5,16 +5,16 @@ import (
 	"github.com/gofiber/fiber/v2"
 )
 
-func ValidateBody(c *fiber.Ctx, body interface{}) error {
+func ValidateBody(c *fiber.Ctx, bodyPtr interface{}) error {
 	var error ValidationError
 
-	if err := c.BodyParser(&body); err != nil {
+	if err := c.BodyParser(bodyPtr); err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
 			"error": err.Error(),
 		})
 	}
 
-	errs := validate.Struct(body)
+	errs := validate.Struct(bodyPtr)
 
 	if errs != nil {
 		first := errs.(validator.ValidationErrors)[0]
@@ -33,14 +33,14 @@ func ValidateBody(c *fiber.Ctx, body interface{}) error {
 		})
 	}
 
-	c.Locals("body", body)
+	c.Locals("body", bodyPtr)
 
 	return c.Next()
 }
 
 // 🚨 nao usar essa funcao, o go fiber ta com problema 🚨
 // Dica: pode usar c.ParamsParser(&params) direto no da feature, pesquise como usar
-// 
+//
 // func ValidateParams(c *fiber.Ctx, params interface{}) error {
 // 	var error ValidationError
 
