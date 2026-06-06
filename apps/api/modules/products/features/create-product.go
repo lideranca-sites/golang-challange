@@ -10,14 +10,9 @@ import (
 
 const CreateProductPath = "/"
 
-type CreateProductBodyDTO struct {
-	Name     *string  `validate:"required" json:"name"`
-	Price    *float64 `validate:"required" json:"price"`
-	Quantity *int     `validate:"required" json:"quantity"`
-}
 
 func CreateProduct(c *fiber.Ctx) error {
-	body := c.Locals("body").(*CreateProductBodyDTO)
+	body := c.Locals("body").(*ProductBodyDTO)
 
 	userId := c.Locals(locals.UserIdLocal).(int)
 

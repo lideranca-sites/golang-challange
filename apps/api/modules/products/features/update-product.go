@@ -12,14 +12,8 @@ import (
 
 const UpdateProductPath = "/:id"
 
-type UpdateProductBodyDTO struct {
-	Name     *string  `validate:"required" json:"name"`
-	Price    *float64 `validate:"required" json:"price"`
-	Quantity *int     `validate:"required" json:"quantity"`
-}
-
 func UpdateProduct(c *fiber.Ctx) error {
-	body := c.Locals("body").(*UpdateProductBodyDTO)
+	body := c.Locals("body").(*ProductBodyDTO)
 	productId := c.Params("id")
 	var product models.Product
 
