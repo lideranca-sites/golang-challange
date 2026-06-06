@@ -1,7 +1,6 @@
 package features
 
 import (
-	"errors"
 	"strconv"
 
 	"example/apps/api/modules/auth/locals"
@@ -9,7 +8,6 @@ import (
 	"example/libs/database/models"
 
 	"github.com/gofiber/fiber/v2"
-	"gorm.io/gorm"
 )
 
 const UpdateProductPath = "/:id"
@@ -33,20 +31,9 @@ func UpdateProduct(c *fiber.Ctx) error {
 		})
 	}
 
-	result := database.DB.First(&product, productIdInt)
-
-	if result.Error != nil {
-
-		if errors.Is(result.Error, gorm.ErrRecordNotFound) {
-
-			return c.Status(fiber.StatusNotFound).JSON(fiber.Map{
-				"error": "Product not found",
-			})
-		}
-
-		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
-			"error": "Server error",
-		})
+	product, err = LoadProduct(c, productIdInt)
+	if err != nil {
+		return err
 	}
 
 	userId := c.Locals(locals.UserIdLocal).(int)
@@ -61,7 +48,7 @@ func UpdateProduct(c *fiber.Ctx) error {
 	product.Price = *body.Price
 	product.Quantity = *body.Quantity
 
-	result = database.DB.Save(&product)
+	result := database.DB.Save(&product)
 
 	if result.Error != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
